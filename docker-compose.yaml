@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  main:
+    build: .
+    network_mode: host
+    volumes:
+      - ./src/:/opt/app/src/

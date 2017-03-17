@@ -1,0 +1,41 @@
+{
+  "name": "vibrate-for-you",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
+  "scripts": {
+    "start": "react-native-scripts start",
+    "eject": "react-native-scripts eject",
+    "android": "react-native-scripts android",
+    "ios": "react-native-scripts ios",
+    "test": "node node_modules/jest/bin/jest.js --watch",
+    "test:ci": "node node_modules/jest/bin/jest.js",
+    "format": "prettier --write --single-quote --trailing-comma all",
+    "format:all": "yarn format src/**/*",
+    "format:staged": "yarn format $(git diff --name-only --cached)",
+    "postinstall": "node node_modules/husky/bin/install.js",
+    "precommit": "lint-staged"
+  },
+  "dependencies": {
+    "expo": "14.0.2",
+    "react": "~15.4.0",
+    "react-native": "0.41.x"
+  },
+  "devDependencies": {
+    "husky": "^0.13.2",
+    "jest-expo": "^0.2.1",
+    "lint-staged": "^3.4.0",
+    "prettier": "^0.22.0",
+    "react-native-scripts": "0.0.20",
+    "react-test-renderer": "~15.4.0"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "lint-staged": {
+    "*.js": [
+      "format",
+      "git add"
+    ]
+  }
+}
