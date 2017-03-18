@@ -14,7 +14,7 @@
     "format:all": "yarn format src/**/*",
     "format:staged": "yarn format $(git diff --name-only --cached)",
     "postinstall": "node node_modules/husky/bin/install.js",
-    "precommit": "lint-staged"
+    "precommit": "yarn test:ci && lint-staged"
   },
   "dependencies": {
     "expo": "14.0.2",
