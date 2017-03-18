@@ -20,7 +20,10 @@
     "expo": "14.0.2",
     "react": "~15.4.0",
     "react-native": "0.41.x",
-    "react-navigation": "^1.0.0-beta.7"
+    "react-navigation": "^1.0.0-beta.7",
+    "react-redux": "^5.0.3",
+    "redux": "^3.6.0",
+    "redux-actions": "^2.0.1"
   },
   "devDependencies": {
     "husky": "^0.13.2",

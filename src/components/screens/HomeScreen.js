@@ -12,8 +12,8 @@ export default class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <Button
-          title="Chat with Jaimie"
-          onPress={() => navigate('Chat', { name: 'Jaimie' })}
+          title="Start chatting"
+          onPress={() => navigate('Chat', { index: 0 })}
         />
       </View>
     );
