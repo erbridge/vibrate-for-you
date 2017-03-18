@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 
 export default class HomeScreen extends Component {
   static navigationOptions = {
@@ -7,9 +7,14 @@ export default class HomeScreen extends Component {
   };
 
   render() {
+    const { navigation: { navigate } } = this.props;
+
     return (
       <View style={styles.container}>
-        <Text>Welcome!</Text>
+        <Button
+          title="Chat with Jaimie"
+          onPress={() => navigate('Chat', { name: 'Jaimie' })}
+        />
       </View>
     );
   }
@@ -18,7 +23,6 @@ export default class HomeScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },

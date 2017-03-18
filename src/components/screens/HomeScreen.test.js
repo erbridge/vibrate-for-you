@@ -4,6 +4,8 @@ import renderer from 'react-test-renderer';
 
 import HomeScreen from './HomeScreen';
 
+const defaultProps = { navigation: { navigate: jest.fn() } };
+
 it('renders without crashing', () => {
-  const rendered = renderer.create(<HomeScreen />).toJSON();
+  const rendered = renderer.create(<HomeScreen {...defaultProps} />).toJSON();
 });
