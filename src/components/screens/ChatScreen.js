@@ -1,24 +1,10 @@
-import { Constants } from 'expo';
-import React, { Component } from 'react';
-import {
-  Button,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 
-import { sendMessage } from '../../store/actions/chat';
+import { getNarrative } from '../../narrative';
 
 import chatSelectors from '../../store/selectors/chat';
-
-// FIXME: This has been pulled out of react-navigation's source,
-//        but should be derived from the actual header's height.
-const HEADER_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
 
 export class ChatScreen extends Component {
   static navigationOptions = {
@@ -27,24 +13,33 @@ export class ChatScreen extends Component {
   };
 
   state = {
-    inputHeight: 0,
-    pendingMessage: '',
+    selectedChoiceIndex: null,
   };
 
-  sendPendingMessage() {
+  constructor(...args) {
+    super(...args);
+
+    // FIXME: Determine which narrative to use.
+    this.narrative = getNarrative('test');
+  }
+
+  submitChoice() {
     const {
+      conversation: { choices },
       dispatch,
       navigation: { state: { params: { index } } },
     } = this.props;
-    const { pendingMessage } = this.state;
+    const { selectedChoiceIndex } = this.state;
 
-    if (!pendingMessage) {
+    if (selectedChoiceIndex === null) {
       return;
     }
 
-    dispatch(sendMessage({ index, sender: 'Me', text: pendingMessage }));
+    const text = choices.find(({ index: i }) => i === selectedChoiceIndex).text;
 
-    this.setState({ pendingMessage: '' });
+    this.narrative.chooseChoice(selectedChoiceIndex, index);
+
+    this.setState({ selectedChoiceIndex: null });
   }
 
   updateNavigationTitle(props) {
@@ -68,38 +63,64 @@ export class ChatScreen extends Component {
     this.updateNavigationTitle(this.props);
   }
 
+  componentDidMount() {
+    const { navigation: { state: { params: { index } } } } = this.props;
+
+    this.narrative.start(index);
+  }
+
   render() {
-    const { conversation: { messages }, dispatch } = this.props;
-    const { inputHeight, pendingMessage } = this.state;
+    const {
+      conversation: { choices, messages },
+      dispatch,
+      navigation: { state: { params: { index: conversationIndex } } },
+    } = this.props;
+    const { selectedChoiceIndex } = this.state;
+
+    let choiceText = 'Your message...';
+
+    if (selectedChoiceIndex !== null) {
+      choiceText = choices.find(
+        ({ index }) => index === selectedChoiceIndex,
+      ).text;
+    }
 
     return (
-      <KeyboardAvoidingView
-        behavior="padding"
-        keyboardVerticalOffset={HEADER_HEIGHT + Constants.statusBarHeight}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <ScrollView style={styles.messageContainer}>
           {messages.map(({ text }, i) => (
             <Text key={i} style={styles.message}>{text}</Text>
           ))}
         </ScrollView>
-        <View style={[styles.inputContainer, { height: inputHeight }]}>
-          <TextInput
-            value={pendingMessage}
-            placeholder="Your message..."
-            multiline
-            onChangeText={text => this.setState({ pendingMessage: text })}
-            onContentSizeChange={(
-              { nativeEvent: { contentSize: { height } } },
-            ) => this.setState({ inputHeight: height })}
-            underlineColorAndroid="transparent"
-            style={styles.input}
-          />
+        <View style={styles.inputContainer}>
+          <Text
+            style={
+              selectedChoiceIndex === null
+                ? [styles.input, styles.inputPlaceholder]
+                : styles.input
+            }
+          >
+            {choiceText}
+          </Text>
           <View style={styles.submitButtonContainer}>
-            <Button title="Send" onPress={() => this.sendPendingMessage()} />
+            <Button title="Send" onPress={() => this.submitChoice()} />
           </View>
         </View>
-      </KeyboardAvoidingView>
+        <View>
+          {choices.map(({ index, text }) => (
+            <Button
+              key={index}
+              title={text}
+              onPress={() => this.setState({ selectedChoiceIndex: index })}
+            />
+          ))}
+          <Button
+            title="Clear"
+            onPress={() => this.setState({ selectedChoiceIndex: null })}
+            color="#c62828"
+          />
+        </View>
+      </View>
     );
   }
 }
@@ -123,6 +144,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     fontSize: 24,
+  },
+  inputPlaceholder: {
+    color: '#aaa',
   },
   submitButtonContainer: {
     padding: 5,

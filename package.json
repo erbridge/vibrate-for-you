@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "expo": "15.1.2",
+    "inkjs": "^1.5.1",
+    "mz-modules": "^1.0.0",
     "react": "~15.4.0",
     "react-native": "0.42.x",
     "react-navigation": "^1.0.0-beta.7",

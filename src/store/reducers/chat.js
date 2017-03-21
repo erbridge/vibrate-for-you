@@ -1,6 +1,11 @@
 import { handleActions } from 'redux-actions';
 
-import { SEND_MESSAGE } from '../actions/chat';
+import {
+  CLEAR_CHOICES,
+  SEND_MESSAGE,
+  SET_CHOICES,
+  UPDATE_STORY_STATE,
+} from '../actions/chat';
 
 export default handleActions(
   {
@@ -19,21 +24,59 @@ export default handleActions(
         return state;
       },
     },
+    [SET_CHOICES]: {
+      next(state, { payload: { index, choices } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations[index].choices = choices;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [CLEAR_CHOICES]: {
+      next(state, { payload: { index, choices } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations[index].choices = [];
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [UPDATE_STORY_STATE]: {
+      next(state, { payload: { index, storyState } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations[index].storyState = storyState;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
   },
   {
     conversations: [
       {
         name: 'Jaimie',
-        messages: [
-          {
-            sender: 'Jaimie',
-            text: 'Hi!',
-          },
-          {
-            sender: 'Jaimie',
-            text: 'How are you?',
-          },
-        ],
+        messages: [],
+        choices: [],
+        storyState: '',
       },
     ],
   },
