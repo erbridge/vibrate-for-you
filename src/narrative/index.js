@@ -72,7 +72,7 @@ export class Narrative {
     if (this.story.canContinue) {
       const text = this.story.Continue();
       const knotTags = this.story.TagsForContentAtPath(
-        this.story.state.currentPath,
+        this.story.state.currentPath.head._name,
       ) || [];
       const tags = this.story.currentTags || [];
 
