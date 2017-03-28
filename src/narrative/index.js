@@ -20,8 +20,15 @@ export class Narrative {
   isProcessing = false;
   nextMessageWasChoice = false;
 
+  // TODO: Does this belong in the store?
+  storyEvents = [];
+
   constructor(storyKey, store) {
     this.story = new Story(STORIES[storyKey]);
+
+    this.story.BindExternalFunction('wait', ms => {
+      this.storyEvents.push({ type: 'wait', payload: ms });
+    });
 
     this.store = store;
   }
@@ -79,13 +86,17 @@ export class Narrative {
         } else {
           const typingDuration = 250 * text.length;
 
-          // TODO: Show typing, too.
+          // TODO: Show typing, too, by dispatching an action.
           await sleep(typingDuration);
         }
 
         this.store.dispatch(
           sendMessage({ index: conversationIndex, sender, text }),
         );
+      }
+
+      while (this.storyEvents.length) {
+        await this._processEvent(this.storyEvents.shift());
       }
 
       await this._processStory(conversationIndex);
@@ -103,6 +114,17 @@ export class Narrative {
       this.store.dispatch(setChoices({ index: conversationIndex, choices }));
 
       this.isProcessing = false;
+    }
+  }
+
+  async _processEvent({ type, payload }) {
+    switch (type) {
+      case 'wait':
+        await sleep(payload);
+        break;
+      default:
+        // FIXME: Throw an error?
+        break;
     }
   }
 }

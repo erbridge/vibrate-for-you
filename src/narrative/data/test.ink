@@ -1,3 +1,5 @@
+INCLUDE functions.ink
+
 VAR player_online = 1
 
 -> start
@@ -13,7 +15,8 @@ Welcome...
 
 ~ player_online = 0
 
-Hello world!
+Hello world!{ wait(10000) }
+
 How are you today?
 
 - (opts)
