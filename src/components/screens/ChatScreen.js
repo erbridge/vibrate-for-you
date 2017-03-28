@@ -88,8 +88,18 @@ export class ChatScreen extends Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.messageContainer}>
-          {messages.map(({ text }, i) => (
-            <Text key={i} style={styles.message}>{text}</Text>
+          {messages.map(({ sender, text }, i) => (
+            <Text
+              key={i}
+              style={[
+                styles.message,
+                sender === 'player'
+                  ? { textAlign: 'right' }
+                  : { textAlign: 'left' },
+              ]}
+            >
+              {text}
+            </Text>
           ))}
         </ScrollView>
         <View style={styles.inputContainer}>
