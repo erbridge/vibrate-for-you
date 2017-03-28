@@ -6,6 +6,7 @@ import {
   clearChoices,
   sendMessage,
   setChoices,
+  setTyping,
   updateStoryState,
 } from '../store/actions/chat';
 
@@ -105,7 +106,7 @@ export class Narrative {
             text = newText;
           }
         } else {
-          await this._showTyping(text);
+          await this._showTyping(text, conversationIndex);
         }
 
         if (text) {
@@ -116,7 +117,7 @@ export class Narrative {
       }
 
       while (this.storyEvents.length) {
-        await this._processEvent(this.storyEvents.shift());
+        await this._processEvent(this.storyEvents.shift(), conversationIndex);
       }
 
       await this._processStory(conversationIndex);
@@ -158,7 +159,7 @@ export class Narrative {
     }
   }
 
-  async _processEvent({ type, payload }) {
+  async _processEvent({ type, payload }, conversationIndex) {
     switch (type) {
       case 'wait':
         console.log(`Waiting ${payload}ms`);
@@ -167,7 +168,7 @@ export class Narrative {
 
         break;
       case 'typing':
-        await this._showTyping(payload);
+        await this._showTyping(payload, conversationIndex);
 
         break;
       default:
@@ -176,15 +177,23 @@ export class Narrative {
     }
   }
 
-  async _showTyping(textOrDuration) {
+  async _showTyping(textOrDuration, conversationIndex) {
     if (typeof textOrDuration === 'string') {
       textOrDuration = 250 * textOrDuration.length;
     }
 
     console.log(`Typing ${textOrDuration}ms`);
 
+    this.store.dispatch(
+      setTyping({ index: conversationIndex, typingState: 'active' }),
+    );
+
     // TODO: Show typing, too, by dispatching an action.
     await sleep(textOrDuration);
+
+    this.store.dispatch(
+      setTyping({ index: conversationIndex, typingState: 'inactive' }),
+    );
   }
 
   async _delayChoice(choice, conversationIndex, delay) {

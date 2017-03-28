@@ -71,9 +71,9 @@ export class ChatScreen extends Component {
 
   render() {
     const {
-      conversation: { choices, messages },
+      conversation: { choices, messages, typingState },
       dispatch,
-      navigation: { state: { params: { index: conversationIndex } } },
+      navigation: { state: { params: { index: conversationIndex, name } } },
     } = this.props;
     const { selectedChoiceIndex } = this.state;
 
@@ -101,6 +101,8 @@ export class ChatScreen extends Component {
               {text}
             </Text>
           ))}
+          {typingState === 'active' &&
+            <Text style={styles.typingIndicator}>{name} is typing...</Text>}
         </ScrollView>
         <View style={styles.inputContainer}>
           <Text
@@ -145,6 +147,11 @@ const styles = StyleSheet.create({
   message: {
     padding: 5,
     fontSize: 18,
+  },
+  typingIndicator: {
+    padding: 10,
+    fontSize: 14,
+    fontStyle: 'italic',
   },
   inputContainer: {
     backgroundColor: '#fff',
