@@ -5,6 +5,7 @@ import {
   CLEAR_CHOICES,
   SEND_MESSAGE,
   SET_CHOICES,
+  SET_TYPING,
   UPDATE_STORY_STATE,
 } from '../actions/chat';
 
@@ -70,6 +71,21 @@ export default handleActions(
         return state;
       },
     },
+    [SET_TYPING]: {
+      next(state, { payload: { index, typingState } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations[index].typingState = typingState;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
     [UPDATE_STORY_STATE]: {
       next(state, { payload: { index, storyState } }) {
         const conversations = JSON.parse(JSON.stringify(state.conversations));
@@ -92,6 +108,7 @@ export default handleActions(
         name: 'Jaimie',
         messages: [],
         choices: [],
+        typingState: 'inactive',
         storyState: '',
       },
     ],
