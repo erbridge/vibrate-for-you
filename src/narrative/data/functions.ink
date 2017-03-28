@@ -1,4 +1,8 @@
-EXTERNAL wait(ms)
+EXTERNAL typing(s)
+EXTERNAL wait(s)
 
-== function wait(ms) ==
-~ return " **wait {ms}ms**"
+== function typing(s) ==
+~ return " **typing {s}s**"
+
+== function wait(s) ==
+~ return " **wait {s}s**"

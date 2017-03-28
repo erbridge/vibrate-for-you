@@ -26,8 +26,12 @@ export class Narrative {
   constructor(storyKey, store) {
     this.story = new Story(STORIES[storyKey]);
 
-    this.story.BindExternalFunction('wait', ms => {
-      this.storyEvents.push({ type: 'wait', payload: ms });
+    this.story.BindExternalFunction('typing', seconds => {
+      this.storyEvents.push({ type: 'typing', payload: seconds * 1000 });
+    });
+
+    this.story.BindExternalFunction('wait', seconds => {
+      this.storyEvents.push({ type: 'wait', payload: seconds * 1000 });
     });
 
     this.store = store;
@@ -86,8 +90,7 @@ export class Narrative {
         } else {
           const typingDuration = 250 * text.length;
 
-          // TODO: Show typing, too, by dispatching an action.
-          await sleep(typingDuration);
+          await this._showTyping(typingDuration);
         }
 
         this.store.dispatch(
@@ -120,12 +123,26 @@ export class Narrative {
   async _processEvent({ type, payload }) {
     switch (type) {
       case 'wait':
+        console.log(`Waiting ${payload}ms`);
+
         await sleep(payload);
+
+        break;
+      case 'typing':
+        await this._showTyping(payload);
+
         break;
       default:
         // FIXME: Throw an error?
         break;
     }
+  }
+
+  async _showTyping(duration) {
+    console.log(`Typing ${duration}ms`);
+
+    // TODO: Show typing, too, by dispatching an action.
+    await sleep(duration);
   }
 }
 
