@@ -2,6 +2,7 @@ import { Story } from 'inkjs';
 import sleep from 'mz-modules/sleep';
 
 import {
+  addChoice,
   clearChoices,
   sendMessage,
   setChoices,
@@ -10,6 +11,8 @@ import {
 
 import chatSelectors from '../store/selectors/chat';
 
+const WAIT_CHOICE_RE = /^WAIT\((\d+)\)\s*(.*)/;
+
 const STORIES = {
   test: require('./data/test.ink.json'),
 };
@@ -17,8 +20,13 @@ const STORIES = {
 const NARRATIVES = [];
 
 export class Narrative {
+  // FIXME: These need to allow for multiple concurrent conversations.
+  //        Use objects.
   isProcessing = false;
   nextMessageWasChoice = false;
+  skipNextTyping = false;
+
+  stepCounter = 0;
 
   // TODO: Does this belong in the store?
   storyEvents = [];
@@ -65,6 +73,7 @@ export class Narrative {
 
   async _processStory(conversationIndex) {
     this.isProcessing = true;
+    this.stepCounter++;
 
     this.store.dispatch(
       updateStoryState({
@@ -74,10 +83,12 @@ export class Narrative {
     );
 
     if (this.story.canContinue) {
-      const text = this.story.Continue();
-      const knotTags = this.story.TagsForContentAtPath(
-        this.story.state.currentPath.head._name,
-      ) || [];
+      let text = this.story.Continue();
+      const knotTags = this.story.state.currentPath
+        ? this.story.TagsForContentAtPath(
+            this.story.state.currentPath.head._name,
+          ) || []
+        : [];
       const tags = this.story.currentTags || [];
 
       if (knotTags.indexOf('debug') < 0 && tags.indexOf('debug') < 0) {
@@ -87,15 +98,21 @@ export class Narrative {
           sender = 'player';
 
           this.nextMessageWasChoice = false;
-        } else {
-          const typingDuration = 250 * text.length;
 
-          await this._showTyping(typingDuration);
+          if (text.startsWith('WAIT')) {
+            const [, , newText] = text.match(WAIT_CHOICE_RE);
+
+            text = newText;
+          }
+        } else {
+          await this._showTyping(text);
         }
 
-        this.store.dispatch(
-          sendMessage({ index: conversationIndex, sender, text }),
-        );
+        if (text) {
+          this.store.dispatch(
+            sendMessage({ index: conversationIndex, sender, text }),
+          );
+        }
       }
 
       while (this.storyEvents.length) {
@@ -104,8 +121,16 @@ export class Narrative {
 
       await this._processStory(conversationIndex);
     } else {
+      const delayedChoices = [];
+
       const choices = this.story.currentChoices.map(({ index, text }) => {
         if (text.startsWith('DEBUG')) {
+          return null;
+        }
+
+        if (text.startsWith('WAIT')) {
+          delayedChoices.push({ index, text });
+
           return null;
         }
 
@@ -115,6 +140,19 @@ export class Narrative {
       choices = choices.filter(choice => choice);
 
       this.store.dispatch(setChoices({ index: conversationIndex, choices }));
+
+      delayedChoices.forEach(({ index, text }) => {
+        if (text.startsWith('WAIT')) {
+          const [, delay, messageText] = text.match(WAIT_CHOICE_RE);
+
+          // Note that we do not await it.
+          this._delayChoice(
+            { index, text: messageText },
+            conversationIndex,
+            delay * 1000,
+          );
+        }
+      });
 
       this.isProcessing = false;
     }
@@ -138,11 +176,35 @@ export class Narrative {
     }
   }
 
-  async _showTyping(duration) {
-    console.log(`Typing ${duration}ms`);
+  async _showTyping(textOrDuration) {
+    if (typeof textOrDuration === 'string') {
+      textOrDuration = 250 * textOrDuration.length;
+    }
+
+    console.log(`Typing ${textOrDuration}ms`);
 
     // TODO: Show typing, too, by dispatching an action.
-    await sleep(duration);
+    await sleep(textOrDuration);
+  }
+
+  async _delayChoice(choice, conversationIndex, delay) {
+    const stepCounter = this.stepCounter;
+
+    // FIXME: Cancel these if a choice is made before they fire.
+    await sleep(delay);
+
+    if (this.stepCounter !== stepCounter) {
+      return;
+    }
+
+    const { index, text } = choice;
+
+    if (text) {
+      this.store.dispatch(addChoice({ index: conversationIndex, choice }));
+    } else {
+      // FIXME: Execute the delay actions for the next knot before choosing it.
+      this.chooseChoice(index, conversationIndex);
+    }
   }
 }
 

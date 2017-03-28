@@ -22,6 +22,15 @@ How are you today?
 - (opts)
     <-  debug(-> opts)
     *   Hello back! -> DONE
+    *   WAIT(10) Goodbye... -> DONE
+    *   WAIT(20) -> there
+
+
+== there ==
+
+Are you there?
+
+-> DONE
 
 
 == debug(-> next) ==

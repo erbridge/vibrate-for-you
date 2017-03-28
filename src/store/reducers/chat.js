@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 
 import {
+  ADD_CHOICE,
   CLEAR_CHOICES,
   SEND_MESSAGE,
   SET_CHOICES,
@@ -29,6 +30,21 @@ export default handleActions(
         const conversations = JSON.parse(JSON.stringify(state.conversations));
 
         conversations[index].choices = choices;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [ADD_CHOICE]: {
+      next(state, { payload: { index, choice } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations[index].choices.push(choice);
 
         return { ...state, conversations };
       },
