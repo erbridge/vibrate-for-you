@@ -28,11 +28,11 @@
     "redux-actions": "^2.0.1"
   },
   "devDependencies": {
-    "husky": "^0.13.2",
-    "jest-expo": "^0.3.0",
+    "husky": "^0.13.3",
+    "jest-expo": "^0.3.1",
     "lint-staged": "^3.4.0",
     "prettier": "^0.22.0",
-    "react-native-scripts": "0.0.22",
+    "react-native-scripts": "^0.0.25",
     "react-test-renderer": "~15.4.0"
   },
   "jest": {
