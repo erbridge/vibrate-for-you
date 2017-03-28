@@ -1,3 +1,5 @@
+jest.useFakeTimers();
+
 jest.mock('expo', () => ({ Constants: { statusBarHeight: 0 } }));
 
 import React from 'react';
