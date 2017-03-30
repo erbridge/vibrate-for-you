@@ -76,9 +76,13 @@ export class ChatScreen extends Component {
       lastIndex = emoji.index + emoji[0].length;
     }
 
-    const alignmentStyle = {
-      textAlign: sender === 'player' ? 'right' : 'left',
-    };
+    const style = sender === 'player'
+      ? styles.playerMessage
+      : styles.npcMessage;
+
+    const textStyle = sender === 'player'
+      ? styles.playerMessageText
+      : styles.npcMessageText;
 
     let statusText;
 
@@ -89,18 +93,26 @@ export class ChatScreen extends Component {
         statusText = '(received)';
       } else if (index <= lastSentIndex) {
         statusText = '(sent)';
+      } else {
+        statusText = '(pending)';
       }
     }
 
+    const spacer = <View style={styles.messageSpacer} />;
+
     return (
-      <View key={index} style={styles.message}>
-        <Text style={[styles.messageText, alignmentStyle]}>
-          {outputText.length ? outputText : text}
-        </Text>
-        {statusText &&
-          <Text style={[styles.statusIndicator, alignmentStyle]}>
-            {statusText}
-          </Text>}
+      <View key={index} style={styles.messageContainer}>
+        {sender === 'player' && spacer}
+        <View style={[styles.message, style]}>
+          <Text style={[styles.messageText, textStyle]}>
+            {outputText.length ? outputText : text}
+          </Text>
+          {statusText &&
+            <Text style={[styles.statusIndicator, textStyle]}>
+              {statusText}
+            </Text>}
+        </View>
+        {sender !== 'player' && spacer}
       </View>
     );
   }
@@ -137,7 +149,7 @@ export class ChatScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.messageContainer}>
+        <ScrollView style={styles.messageList}>
           {messages.map((message, i) => this.renderText(message, i))}
           {typingState === 'active' &&
             <Text style={styles.typingIndicator}>{name} is typing...</Text>}
@@ -179,14 +191,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  messageContainer: {
+  messageList: {
     flex: 1,
   },
-  message: {
+  messageContainer: {
     padding: 5,
+    flexDirection: 'row',
+  },
+  messageSpacer: {
+    flex: 3,
+  },
+  message: {
+    flex: 7,
+    borderRadius: 5,
+    padding: 10,
+  },
+  playerMessage: {
+    backgroundColor: '#99f',
+  },
+  npcMessage: {
+    backgroundColor: '#f99',
   },
   messageText: {
     fontSize: 18,
+  },
+  playerMessageText: {
+    textAlign: 'right',
+  },
+  npcMessageText: {
+    textAlign: 'left',
   },
   statusIndicator: {
     padding: 2,
