@@ -58,7 +58,9 @@ export class ChatScreen extends Component {
     setParams({ name });
   }
 
-  renderText({ sender, text }, key) {
+  renderText({ sender, text }, index) {
+    const { conversation: { lastReadIndex } } = this.props;
+
     text = text.trim();
 
     let emoji;
@@ -73,15 +75,23 @@ export class ChatScreen extends Component {
     }
 
     return (
-      <Text
-        key={key}
-        style={[
-          styles.message,
-          sender === 'player' ? { textAlign: 'right' } : { textAlign: 'left' },
-        ]}
-      >
-        {outputText.length ? outputText : text}
-      </Text>
+      <View key={index} style={styles.message}>
+        <Text
+          style={[
+            styles.messageText,
+            sender === 'player'
+              ? { textAlign: 'right' }
+              : { textAlign: 'left' },
+          ]}
+        >
+          {outputText.length ? outputText : text}
+        </Text>
+        {index <= lastReadIndex &&
+          sender === 'player' &&
+          <Text style={[styles.statusIndicator, { textAlign: 'right' }]}>
+            (read)
+          </Text>}
+      </View>
     );
   }
 
@@ -164,7 +174,14 @@ const styles = StyleSheet.create({
   },
   message: {
     padding: 5,
+  },
+  messageText: {
     fontSize: 18,
+  },
+  statusIndicator: {
+    padding: 2,
+    fontSize: 10,
+    fontStyle: 'italic',
   },
   typingIndicator: {
     padding: 10,
