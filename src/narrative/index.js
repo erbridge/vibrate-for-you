@@ -1,6 +1,8 @@
 import { Story } from 'inkjs';
 import sleep from 'mz-modules/sleep';
 
+import { EMOJI_RE } from '../utils/string';
+
 import {
   addChoice,
   clearChoices,
@@ -179,18 +181,20 @@ export class Narrative {
   }
 
   async _showTyping(textOrDuration, conversationIndex) {
+    let duration = textOrDuration;
+
     if (typeof textOrDuration === 'string') {
-      textOrDuration = 250 * textOrDuration.length;
+      // Make the emoji typing duration consistent.
+      duration = 250 * textOrDuration.replace(EMOJI_RE, '123456').length;
     }
 
-    console.log(`Typing ${textOrDuration}ms`);
+    console.log(`Typing ${duration}ms`);
 
     this.store.dispatch(
       setTyping({ index: conversationIndex, typingState: 'active' }),
     );
 
-    // TODO: Show typing, too, by dispatching an action.
-    await sleep(textOrDuration);
+    await sleep(duration);
 
     this.store.dispatch(
       setTyping({ index: conversationIndex, typingState: 'inactive' }),
