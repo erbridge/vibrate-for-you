@@ -1,6 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Emoji from 'react-native-emoji';
 import { connect } from 'react-redux';
+
+import { EMOJI_RE } from '../../utils/string';
 
 import { getNarrative } from '../../narrative';
 
@@ -55,6 +58,33 @@ export class ChatScreen extends Component {
     setParams({ name });
   }
 
+  renderText({ sender, text }, key) {
+    text = text.trim();
+
+    let emoji;
+    let outputText = [];
+    let lastIndex = 0;
+
+    while ((emoji = EMOJI_RE.exec(text)) !== null) {
+      outputText.push(text.substring(lastIndex, emoji.index));
+      outputText.push(<Emoji key={emoji.index} name={emoji[1]} />);
+
+      lastIndex = emoji.index + emoji[0].length;
+    }
+
+    return (
+      <Text
+        key={key}
+        style={[
+          styles.message,
+          sender === 'player' ? { textAlign: 'right' } : { textAlign: 'left' },
+        ]}
+      >
+        {outputText.length ? outputText : text}
+      </Text>
+    );
+  }
+
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
   }
@@ -88,19 +118,7 @@ export class ChatScreen extends Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.messageContainer}>
-          {messages.map(({ sender, text }, i) => (
-            <Text
-              key={i}
-              style={[
-                styles.message,
-                sender === 'player'
-                  ? { textAlign: 'right' }
-                  : { textAlign: 'left' },
-              ]}
-            >
-              {text}
-            </Text>
-          ))}
+          {messages.map((message, i) => this.renderText(message, i))}
           {typingState === 'active' &&
             <Text style={styles.typingIndicator}>{name} is typing...</Text>}
         </ScrollView>
