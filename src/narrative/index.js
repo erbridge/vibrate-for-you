@@ -8,6 +8,9 @@ import {
   clearChoices,
   sendMessage,
   setChoices,
+  setRead,
+  setReceived,
+  setSent,
   setTyping,
   updateStoryState,
 } from '../store/actions/chat';
@@ -35,12 +38,12 @@ export class Narrative {
   constructor(storyKey, store) {
     this.story = new Story(STORIES[storyKey]);
 
-    this.story.BindExternalFunction('typing', seconds => {
-      this.storyEvents.push({ type: 'typing', payload: seconds * 1000 });
-    });
-
     this.story.BindExternalFunction('wait', seconds => {
       this.storyEvents.push({ type: 'wait', payload: seconds * 1000 });
+    });
+
+    this.story.BindExternalFunction('typing', seconds => {
+      this.storyEvents.push({ type: 'typing', payload: seconds * 1000 });
     });
 
     this.store = store;
@@ -101,8 +104,6 @@ export class Narrative {
         if (this.nextMessageWasChoice) {
           sender = 'player';
 
-          this.nextMessageWasChoice = false;
-
           if (text.startsWith('WAIT')) {
             const [, , newText] = text.match(WAIT_CHOICE_RE);
 
@@ -116,7 +117,15 @@ export class Narrative {
           this.store.dispatch(
             sendMessage({ index: conversationIndex, sender, text }),
           );
+
+          if (this.nextMessageWasChoice) {
+            await this._markAllMessagesAsSent(conversationIndex);
+            await this._markAllMessagesAsReceived(conversationIndex);
+            await this._markAllMessagesAsRead(conversationIndex);
+          }
         }
+
+        this.nextMessageWasChoice = false;
       }
 
       while (this.storyEvents.length) {
@@ -165,7 +174,7 @@ export class Narrative {
   async _processEvent({ type, payload }, conversationIndex) {
     switch (type) {
       case 'wait':
-        console.log(`Waiting ${payload}ms`);
+        console.log(`Waiting: ${payload}ms`);
 
         await sleep(payload);
 
@@ -180,6 +189,36 @@ export class Narrative {
     }
   }
 
+  async _markAllMessagesAsSent(conversationIndex, delay) {
+    delay = delay === undefined ? 500 : delay;
+
+    console.log(`Marking as sent after: ${delay}ms`);
+
+    await sleep(delay);
+
+    this.store.dispatch(setSent({ index: conversationIndex }));
+  }
+
+  async _markAllMessagesAsReceived(conversationIndex, delay) {
+    delay = delay === undefined ? 500 : delay;
+
+    console.log(`Marking as received after: ${delay}ms`);
+
+    await sleep(delay);
+
+    this.store.dispatch(setReceived({ index: conversationIndex }));
+  }
+
+  async _markAllMessagesAsRead(conversationIndex, delay) {
+    delay = delay === undefined ? 500 : delay;
+
+    console.log(`Marking as read after: ${delay}ms`);
+
+    await sleep(delay);
+
+    this.store.dispatch(setRead({ index: conversationIndex }));
+  }
+
   async _showTyping(textOrDuration, conversationIndex) {
     let duration = textOrDuration;
 
@@ -188,7 +227,7 @@ export class Narrative {
       duration = 250 * textOrDuration.replace(EMOJI_RE, '123456').length;
     }
 
-    console.log(`Typing ${duration}ms`);
+    console.log(`Typing: ${duration}ms`);
 
     this.store.dispatch(
       setTyping({ index: conversationIndex, typingState: 'active' }),

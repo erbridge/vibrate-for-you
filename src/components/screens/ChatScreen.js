@@ -58,7 +58,11 @@ export class ChatScreen extends Component {
     setParams({ name });
   }
 
-  renderText({ sender, text }, key) {
+  renderText({ sender, text }, index) {
+    const {
+      conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
+    } = this.props;
+
     text = text.trim();
 
     let emoji;
@@ -72,16 +76,32 @@ export class ChatScreen extends Component {
       lastIndex = emoji.index + emoji[0].length;
     }
 
+    const alignmentStyle = {
+      textAlign: sender === 'player' ? 'right' : 'left',
+    };
+
+    let statusText;
+
+    if (sender === 'player') {
+      if (index <= lastReadIndex) {
+        statusText = '(read)';
+      } else if (index <= lastReceivedIndex) {
+        statusText = '(received)';
+      } else if (index <= lastSentIndex) {
+        statusText = '(sent)';
+      }
+    }
+
     return (
-      <Text
-        key={key}
-        style={[
-          styles.message,
-          sender === 'player' ? { textAlign: 'right' } : { textAlign: 'left' },
-        ]}
-      >
-        {outputText.length ? outputText : text}
-      </Text>
+      <View key={index} style={styles.message}>
+        <Text style={[styles.messageText, alignmentStyle]}>
+          {outputText.length ? outputText : text}
+        </Text>
+        {statusText &&
+          <Text style={[styles.statusIndicator, alignmentStyle]}>
+            {statusText}
+          </Text>}
+      </View>
     );
   }
 
@@ -164,7 +184,14 @@ const styles = StyleSheet.create({
   },
   message: {
     padding: 5,
+  },
+  messageText: {
     fontSize: 18,
+  },
+  statusIndicator: {
+    padding: 2,
+    fontSize: 10,
+    fontStyle: 'italic',
   },
   typingIndicator: {
     padding: 10,

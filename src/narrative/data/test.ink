@@ -15,7 +15,7 @@ Welcome...
 
 ~ player_online = 0
 
-Hello world! :cherry_blossom::eggplant:{ wait(10) }{ typing(1.5) }{ wait(10) }{ typing(4) }{ wait(10) }
+Hello world! :cherry_blossom::eggplant:{ wait(5) }{ typing(4) }{ wait(5) }
 
 How are you today?
 

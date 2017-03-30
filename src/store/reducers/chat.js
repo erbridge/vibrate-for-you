@@ -5,6 +5,9 @@ import {
   CLEAR_CHOICES,
   SEND_MESSAGE,
   SET_CHOICES,
+  SET_READ,
+  SET_RECEIVED,
+  SET_SENT,
   SET_TYPING,
   UPDATE_STORY_STATE,
 } from '../actions/chat';
@@ -71,6 +74,54 @@ export default handleActions(
         return state;
       },
     },
+    [SET_SENT]: {
+      next(state, { payload: { index } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+        const conversation = conversations[index];
+
+        conversation.lastSentIndex = conversation.messages.length - 1;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [SET_RECEIVED]: {
+      next(state, { payload: { index } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+        const conversation = conversations[index];
+
+        conversation.lastReceivedIndex = conversation.messages.length - 1;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [SET_READ]: {
+      next(state, { payload: { index } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+        const conversation = conversations[index];
+
+        conversation.lastReadIndex = conversation.messages.length - 1;
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
     [SET_TYPING]: {
       next(state, { payload: { index, typingState } }) {
         const conversations = JSON.parse(JSON.stringify(state.conversations));
@@ -108,6 +159,9 @@ export default handleActions(
         name: 'Jaimie',
         messages: [],
         choices: [],
+        lastSentIndex: -1,
+        lastReceivedIndex: -1,
+        lastReadIndex: -1,
         typingState: 'inactive',
         storyState: '',
       },
