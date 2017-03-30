@@ -71,6 +71,8 @@ export class Narrative {
   }
 
   async _processStory(conversationIndex) {
+    await sleep(500);
+
     this.isProcessing = true;
     this.stepCounter++;
 
