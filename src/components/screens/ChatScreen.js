@@ -59,7 +59,9 @@ export class ChatScreen extends Component {
   }
 
   renderText({ sender, text }, index) {
-    const { conversation: { lastReadIndex } } = this.props;
+    const {
+      conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
+    } = this.props;
 
     text = text.trim();
 
@@ -74,22 +76,30 @@ export class ChatScreen extends Component {
       lastIndex = emoji.index + emoji[0].length;
     }
 
+    const alignmentStyle = {
+      textAlign: sender === 'player' ? 'right' : 'left',
+    };
+
+    let statusText;
+
+    if (sender === 'player') {
+      if (index <= lastReadIndex) {
+        statusText = '(read)';
+      } else if (index <= lastReceivedIndex) {
+        statusText = '(received)';
+      } else if (index <= lastSentIndex) {
+        statusText = '(sent)';
+      }
+    }
+
     return (
       <View key={index} style={styles.message}>
-        <Text
-          style={[
-            styles.messageText,
-            sender === 'player'
-              ? { textAlign: 'right' }
-              : { textAlign: 'left' },
-          ]}
-        >
+        <Text style={[styles.messageText, alignmentStyle]}>
           {outputText.length ? outputText : text}
         </Text>
-        {index <= lastReadIndex &&
-          sender === 'player' &&
-          <Text style={[styles.statusIndicator, { textAlign: 'right' }]}>
-            (read)
+        {statusText &&
+          <Text style={[styles.statusIndicator, alignmentStyle]}>
+            {statusText}
           </Text>}
       </View>
     );

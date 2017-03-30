@@ -9,6 +9,8 @@ import {
   sendMessage,
   setChoices,
   setRead,
+  setReceived,
+  setSent,
   setTyping,
   updateStoryState,
 } from '../store/actions/chat';
@@ -117,6 +119,8 @@ export class Narrative {
           );
 
           if (this.nextMessageWasChoice) {
+            await this._markAllMessagesAsSent(conversationIndex);
+            await this._markAllMessagesAsReceived(conversationIndex);
             await this._markAllMessagesAsRead(conversationIndex);
           }
         }
@@ -183,6 +187,26 @@ export class Narrative {
         // FIXME: Throw an error?
         break;
     }
+  }
+
+  async _markAllMessagesAsSent(conversationIndex, delay) {
+    delay = delay === undefined ? 500 : delay;
+
+    console.log(`Marking as sent after: ${delay}ms`);
+
+    await sleep(delay);
+
+    this.store.dispatch(setSent({ index: conversationIndex }));
+  }
+
+  async _markAllMessagesAsReceived(conversationIndex, delay) {
+    delay = delay === undefined ? 500 : delay;
+
+    console.log(`Marking as received after: ${delay}ms`);
+
+    await sleep(delay);
+
+    this.store.dispatch(setReceived({ index: conversationIndex }));
   }
 
   async _markAllMessagesAsRead(conversationIndex, delay) {

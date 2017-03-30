@@ -6,6 +6,8 @@ export const SET_CHOICES = '@@vfy/SET_CHOICES';
 export const ADD_CHOICE = '@@vfy/ADD_CHOICE';
 export const CLEAR_CHOICES = '@@vfy/CLEAR_CHOICES';
 
+export const SET_SENT = '@@vfy/SET_SENT';
+export const SET_RECEIVED = '@@vfy/SET_RECEIVED';
 export const SET_READ = '@@vfy/SET_READ';
 export const SET_TYPING = '@@vfy/SET_TYPING';
 
@@ -17,6 +19,8 @@ export const setChoices = createAction(SET_CHOICES);
 export const addChoice = createAction(ADD_CHOICE);
 export const clearChoices = createAction(CLEAR_CHOICES);
 
+export const setSent = createAction(SET_SENT);
+export const setReceived = createAction(SET_RECEIVED);
 export const setRead = createAction(SET_READ);
 export const setTyping = createAction(SET_TYPING);
 
