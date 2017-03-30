@@ -21,8 +21,6 @@ const STORIES = {
 const NARRATIVES = [];
 
 export class Narrative {
-  // FIXME: These need to allow for multiple concurrent conversations.
-  //        Use objects.
   isProcessing = false;
   nextMessageWasChoice = false;
   skipNextTyping = false;
@@ -85,6 +83,7 @@ export class Narrative {
 
     if (this.story.canContinue) {
       let text = this.story.Continue();
+
       const knotTags = this.story.state.currentPath
         ? this.story.TagsForContentAtPath(
             this.story.state.currentPath.head._name,
