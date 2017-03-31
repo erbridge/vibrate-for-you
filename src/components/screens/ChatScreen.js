@@ -24,9 +24,11 @@ export class ChatScreen extends Component {
   };
 
   state = {
-    messageColour: new Animated.Value(0),
-    messageScale: new Animated.Value(1),
+    messageAppearScale: new Animated.Value(0),
+    messageReadStateColour: new Animated.Value(0),
+    messageReadStateScale: new Animated.Value(1),
     previousLastReadIndex: -1,
+    previousMessageCount: 0,
     selectedChoiceIndex: null,
   };
 
@@ -73,7 +75,13 @@ export class ChatScreen extends Component {
     const {
       conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
     } = this.props;
-    const { messageColour, messageScale, previousLastReadIndex } = this.state;
+    const {
+      messageAppearScale,
+      messageReadStateColour,
+      messageReadStateScale,
+      previousLastReadIndex,
+      previousMessageCount,
+    } = this.state;
 
     text = text.trim();
 
@@ -92,7 +100,7 @@ export class ChatScreen extends Component {
     const textStyle = {};
 
     if (sender === 'player') {
-      style.transform = [{ scale: messageScale }];
+      style.transform = [{ scale: messageReadStateScale }];
       style.borderColor = 'rgba(170, 170, 170, 1)';
       style.backgroundColor = 'rgba(255, 255, 255, 1)';
 
@@ -102,12 +110,12 @@ export class ChatScreen extends Component {
         style.borderColor = '#006680';
 
         if (index > previousLastReadIndex) {
-          style.backgroundColor = messageColour.interpolate({
+          style.backgroundColor = messageReadStateColour.interpolate({
             inputRange: [0, 1],
             outputRange: ['rgba(255, 255, 255, 1)', 'rgba(0, 102, 128, 1)'],
             extrapolate: 'clamp',
           });
-          textStyle.color = messageColour.interpolate({
+          textStyle.color = messageReadStateColour.interpolate({
             inputRange: [0, 1],
             outputRange: ['rgba(0, 102, 128, 1)', 'rgba(255, 255, 255, 1)'],
             extrapolate: 'clamp',
@@ -119,23 +127,23 @@ export class ChatScreen extends Component {
           textStyle.color = '#fff';
         }
       } else if (index <= lastReceivedIndex) {
-        style.borderColor = messageColour.interpolate({
+        style.borderColor = messageReadStateColour.interpolate({
           inputRange: [0, 1],
           outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
           extrapolate: 'clamp',
         });
-        textStyle.color = messageColour.interpolate({
+        textStyle.color = messageReadStateColour.interpolate({
           inputRange: [0, 1],
           outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
           extrapolate: 'clamp',
         });
       } else if (index <= lastSentIndex) {
-        style.borderColor = messageColour.interpolate({
+        style.borderColor = messageReadStateColour.interpolate({
           inputRange: [0, 1],
           outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
           extrapolate: 'clamp',
         });
-        textStyle.color = messageColour.interpolate({
+        textStyle.color = messageReadStateColour.interpolate({
           inputRange: [0, 1],
           outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
           extrapolate: 'clamp',
@@ -147,6 +155,10 @@ export class ChatScreen extends Component {
       style.backgroundColor = 'rgba(128, 0, 0, 1)';
 
       textStyle.color = 'rgba(255, 255, 255, 1)';
+
+      if (index >= previousMessageCount) {
+        style.transform = [{ scale: messageAppearScale }];
+      }
     }
 
     const spacer = <View style={styles.messageSpacer} />;
@@ -167,7 +179,11 @@ export class ChatScreen extends Component {
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
 
-    const { messageColour, messageScale } = this.state;
+    const {
+      messageAppearScale,
+      messageReadStateColour,
+      messageReadStateScale,
+    } = this.state;
 
     if (
       nextProps.conversation.lastReadIndex !==
@@ -177,23 +193,23 @@ export class ChatScreen extends Component {
       nextProps.conversation.lastSentIndex !==
         this.props.conversation.lastSentIndex
     ) {
-      messageColour.setValue(0);
-      messageScale.setValue(1);
+      messageReadStateColour.setValue(0);
+      messageReadStateScale.setValue(1);
 
       Animated.stagger(250, [
         Animated.sequence([
-          Animated.timing(messageScale, {
+          Animated.timing(messageReadStateScale, {
             toValue: 1.05,
             duration: 500,
             easing: Easing.quad,
           }),
-          Animated.timing(messageScale, {
+          Animated.timing(messageReadStateScale, {
             toValue: 1,
             duration: 250,
             easing: Easing.elastic(2),
           }),
         ]),
-        Animated.timing(messageColour, {
+        Animated.timing(messageReadStateColour, {
           toValue: 1,
           duration: 500,
           easing: Easing.inOut(Easing.quad),
@@ -207,6 +223,23 @@ export class ChatScreen extends Component {
     ) {
       this.setState({
         previousLastReadIndex: this.props.conversation.lastReadIndex,
+      });
+    }
+
+    if (
+      nextProps.conversation.messages.length !==
+      this.props.conversation.messages.length
+    ) {
+      messageAppearScale.setValue(0);
+
+      Animated.timing(messageAppearScale, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.elastic(1),
+      }).start();
+
+      this.setState({
+        previousMessageCount: this.props.conversation.messages.length,
       });
     }
   }
