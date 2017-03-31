@@ -95,7 +95,10 @@ export default handleActions(
         const conversations = JSON.parse(JSON.stringify(state.conversations));
         const conversation = conversations[index];
 
-        conversation.lastReceivedIndex = conversation.messages.length - 1;
+        const lastIndex = conversation.messages.length - 1;
+
+        conversation.lastSentIndex = lastIndex;
+        conversation.lastReceivedIndex = lastIndex;
 
         return { ...state, conversations };
       },
@@ -111,7 +114,11 @@ export default handleActions(
         const conversations = JSON.parse(JSON.stringify(state.conversations));
         const conversation = conversations[index];
 
-        conversation.lastReadIndex = conversation.messages.length - 1;
+        const lastIndex = conversation.messages.length - 1;
+
+        conversation.lastSentIndex = lastIndex;
+        conversation.lastReceivedIndex = lastIndex;
+        conversation.lastReadIndex = lastIndex;
 
         return { ...state, conversations };
       },

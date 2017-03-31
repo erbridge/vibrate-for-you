@@ -8,7 +8,8 @@ VAR player_online = 1
 
 Welcome...
 
--> hello
+*   Hi! -> hello
+*   WAIT(20) -> hello
 
 
 == hello ==

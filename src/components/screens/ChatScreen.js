@@ -1,5 +1,13 @@
 import React, { Component, PropTypes } from 'react';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Button,
+  Easing,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import Emoji from 'react-native-emoji';
 import { connect } from 'react-redux';
 
@@ -16,6 +24,9 @@ export class ChatScreen extends Component {
   };
 
   state = {
+    messageColour: new Animated.Value(0),
+    messageScale: new Animated.Value(1),
+    previousLastReadIndex: -1,
     selectedChoiceIndex: null,
   };
 
@@ -62,6 +73,7 @@ export class ChatScreen extends Component {
     const {
       conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
     } = this.props;
+    const { messageColour, messageScale, previousLastReadIndex } = this.state;
 
     text = text.trim();
 
@@ -76,26 +88,65 @@ export class ChatScreen extends Component {
       lastIndex = emoji.index + emoji[0].length;
     }
 
-    const style = sender === 'player'
-      ? styles.playerMessage
-      : styles.npcMessage;
-
-    const textStyle = sender === 'player'
-      ? styles.playerMessageText
-      : styles.npcMessageText;
-
-    let statusText;
+    const style = {};
+    const textStyle = {};
 
     if (sender === 'player') {
+      style.transform = [{ scale: messageScale }];
+      style.borderColor = 'rgba(170, 170, 170, 1)';
+      style.backgroundColor = 'rgba(255, 255, 255, 1)';
+
+      textStyle.color = 'rgba(170, 170, 170, 1)';
+
       if (index <= lastReadIndex) {
-        statusText = '(read)';
+        style.borderColor = '#006680';
+
+        if (index > previousLastReadIndex) {
+          style.backgroundColor = messageColour.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['rgba(255, 255, 255, 1)', 'rgba(0, 102, 128, 1)'],
+            extrapolate: 'clamp',
+          });
+          textStyle.color = messageColour.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['rgba(0, 102, 128, 1)', 'rgba(255, 255, 255, 1)'],
+            extrapolate: 'clamp',
+          });
+        } else {
+          delete style.transform;
+
+          style.backgroundColor = '#006680';
+          textStyle.color = '#fff';
+        }
       } else if (index <= lastReceivedIndex) {
-        statusText = '(received)';
+        style.borderColor = messageColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
+          extrapolate: 'clamp',
+        });
+        textStyle.color = messageColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
+          extrapolate: 'clamp',
+        });
       } else if (index <= lastSentIndex) {
-        statusText = '(sent)';
-      } else {
-        statusText = '(pending)';
+        style.borderColor = messageColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
+          extrapolate: 'clamp',
+        });
+        textStyle.color = messageColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
+          extrapolate: 'clamp',
+        });
       }
+    } else {
+      // TODO: Should this animate all new messages, too?
+      style.borderColor = 'rgba(128, 0, 0, 1)';
+      style.backgroundColor = 'rgba(128, 0, 0, 1)';
+
+      textStyle.color = 'rgba(255, 255, 255, 1)';
     }
 
     const spacer = <View style={styles.messageSpacer} />;
@@ -103,15 +154,11 @@ export class ChatScreen extends Component {
     return (
       <View key={index} style={styles.messageContainer}>
         {sender === 'player' && spacer}
-        <View style={[styles.message, style]}>
-          <Text style={[styles.messageText, textStyle]}>
+        <Animated.View style={[styles.message, style]}>
+          <Animated.Text style={[styles.messageText, textStyle]}>
             {outputText.length ? outputText : text}
-          </Text>
-          {statusText &&
-            <Text style={[styles.statusIndicator, textStyle]}>
-              {statusText}
-            </Text>}
-        </View>
+          </Animated.Text>
+        </Animated.View>
         {sender !== 'player' && spacer}
       </View>
     );
@@ -119,6 +166,49 @@ export class ChatScreen extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
+
+    const { messageColour, messageScale } = this.state;
+
+    if (
+      nextProps.conversation.lastReadIndex !==
+        this.props.conversation.lastReadIndex ||
+      nextProps.conversation.lastReceivedIndex !==
+        this.props.conversation.lastReceivedIndex ||
+      nextProps.conversation.lastSentIndex !==
+        this.props.conversation.lastSentIndex
+    ) {
+      messageColour.setValue(0);
+      messageScale.setValue(1);
+
+      Animated.stagger(250, [
+        Animated.sequence([
+          Animated.timing(messageScale, {
+            toValue: 1.05,
+            duration: 500,
+            easing: Easing.quad,
+          }),
+          Animated.timing(messageScale, {
+            toValue: 1,
+            duration: 250,
+            easing: Easing.elastic(2),
+          }),
+        ]),
+        Animated.timing(messageColour, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.inOut(Easing.quad),
+        }),
+      ]).start();
+    }
+
+    if (
+      nextProps.conversation.lastReadIndex !==
+      this.props.conversation.lastReadIndex
+    ) {
+      this.setState({
+        previousLastReadIndex: this.props.conversation.lastReadIndex,
+      });
+    }
   }
 
   componentWillMount() {
@@ -202,29 +292,21 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   message: {
-    flex: 7,
-    borderRadius: 5,
+    flex: 5,
+    borderWidth: 3,
+    borderStyle: 'solid',
+    borderRadius: 15,
     padding: 10,
   },
-  playerMessage: {
-    backgroundColor: '#99f',
-  },
   npcMessage: {
-    backgroundColor: '#f99',
+    borderColor: '#800000',
+    backgroundColor: '#800000',
   },
   messageText: {
     fontSize: 18,
   },
-  playerMessageText: {
-    textAlign: 'right',
-  },
   npcMessageText: {
-    textAlign: 'left',
-  },
-  statusIndicator: {
-    padding: 2,
-    fontSize: 10,
-    fontStyle: 'italic',
+    color: '#fff',
   },
   typingIndicator: {
     padding: 10,
