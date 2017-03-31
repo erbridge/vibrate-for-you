@@ -71,12 +71,14 @@ export class Narrative {
     this.nextMessageWasChoice = true;
 
     if (!this.isProcessing) {
-      this._processStory(conversationIndex);
+      this._processStory(conversationIndex, true);
     }
   }
 
-  async _processStory(conversationIndex) {
-    await sleep(500);
+  async _processStory(conversationIndex, skipDelay) {
+    if (!skipDelay) {
+      await sleep(1000);
+    }
 
     this.isProcessing = true;
     this.stepCounter++;
@@ -122,6 +124,8 @@ export class Narrative {
             await this._markAllMessagesAsSent(conversationIndex);
             await this._markAllMessagesAsReceived(conversationIndex);
             await this._markAllMessagesAsRead(conversationIndex);
+          } else {
+            await this._markAllMessagesAsRead(conversationIndex, 0);
           }
         }
 
@@ -200,7 +204,7 @@ export class Narrative {
   }
 
   async _markAllMessagesAsReceived(conversationIndex, delay) {
-    delay = delay === undefined ? 500 : delay;
+    delay = delay === undefined ? 2000 : delay;
 
     console.log(`Marking as received after: ${delay}ms`);
 
@@ -210,7 +214,7 @@ export class Narrative {
   }
 
   async _markAllMessagesAsRead(conversationIndex, delay) {
-    delay = delay === undefined ? 500 : delay;
+    delay = delay === undefined ? 2000 : delay;
 
     console.log(`Marking as read after: ${delay}ms`);
 
