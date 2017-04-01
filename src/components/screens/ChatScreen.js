@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import Emoji from 'react-native-emoji';
@@ -176,6 +177,20 @@ export class ChatScreen extends Component {
     );
   }
 
+  renderChoice({ index, text }) {
+    return (
+      <View key={index} style={styles.choiceContainer}>
+        <TouchableOpacity
+          onPress={() => this.setState({ selectedChoiceIndex: index })}
+          activeOpacity={0.8}
+          style={styles.choice}
+        >
+          <Text>{text}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
 
@@ -292,13 +307,7 @@ export class ChatScreen extends Component {
           </View>
         </View>
         <View>
-          {choices.map(({ index, text }) => (
-            <Button
-              key={index}
-              title={text}
-              onPress={() => this.setState({ selectedChoiceIndex: index })}
-            />
-          ))}
+          {choices.map(choice => this.renderChoice(choice))}
           <Button
             title="Clear"
             onPress={() => this.setState({ selectedChoiceIndex: null })}
@@ -331,15 +340,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
   },
-  npcMessage: {
-    borderColor: '#800000',
-    backgroundColor: '#800000',
-  },
   messageText: {
     fontSize: 18,
-  },
-  npcMessageText: {
-    color: '#fff',
   },
   typingIndicator: {
     padding: 10,
@@ -362,6 +364,17 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  choiceContainer: {
+    padding: 10,
+  },
+  choice: {
+    borderRadius: 15,
+    padding: 10,
+    backgroundColor: '#fff',
+
+    // Android only
+    elevation: 1,
   },
 });
 
