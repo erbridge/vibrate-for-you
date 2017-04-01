@@ -341,13 +341,15 @@ export class ChatScreen extends Component {
             <Button title="Send" onPress={() => this.submitChoice()} />
           </View>
         </View>
-        <View>
+        <View style={styles.choiceList}>
           {choices.map(choice => this.renderChoice(choice))}
-          <Button
-            title="Clear"
-            onPress={() => this.setState({ selectedChoiceIndex: null })}
-            color="#c62828"
-          />
+          <View style={styles.clearButtonContainer}>
+            <Button
+              title="Clear"
+              onPress={() => this.setState({ selectedChoiceIndex: null })}
+              color="#c62828"
+            />
+          </View>
         </View>
       </View>
     );
@@ -400,8 +402,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  choiceContainer: {
+  choiceList: {
     padding: 10,
+    paddingBottom: 0,
+  },
+  choiceContainer: {
+    paddingBottom: 10,
   },
   choice: {
     borderRadius: 15,
@@ -410,6 +416,9 @@ const styles = StyleSheet.create({
 
     // Android only
     elevation: 1,
+  },
+  clearButtonContainer: {
+    paddingBottom: 10,
   },
 });
 
