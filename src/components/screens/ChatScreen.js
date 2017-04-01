@@ -52,7 +52,13 @@ export class ChatScreen extends Component {
       return;
     }
 
-    const text = choices.find(({ index: i }) => i === selectedChoiceIndex).text;
+    const choice = choices.find(({ index: i }) => i === selectedChoiceIndex);
+
+    if (!choice) {
+      return;
+    }
+
+    const text = choice.text;
 
     this.narrative.chooseChoice(selectedChoiceIndex, index);
 
@@ -198,6 +204,7 @@ export class ChatScreen extends Component {
       messageAppearScale,
       messageReadStateColour,
       messageReadStateScale,
+      selectedChoiceIndex,
     } = this.state;
 
     if (
@@ -257,6 +264,32 @@ export class ChatScreen extends Component {
         previousMessageCount: this.props.conversation.messages.length,
       });
     }
+
+    if (selectedChoiceIndex !== null) {
+      const choice = this.props.conversation.choices.find(
+        ({ index }) => index === selectedChoiceIndex,
+      );
+
+      if (choice) {
+        const nextChoice = nextProps.conversation.choices.find(
+          ({ index }) => index === selectedChoiceIndex,
+        );
+
+        if (!nextChoice || choice.text !== nextChoice.text) {
+          const replacementChoice = nextProps.conversation.choices.find(
+            ({ text }) => text === choice.text,
+          );
+
+          if (replacementChoice) {
+            this.setState({ selectedChoiceIndex: replacementChoice.index });
+          } else {
+            this.setState({ selectedChoiceIndex: null });
+          }
+        }
+      } else {
+        this.setState({ selectedChoiceIndex: null });
+      }
+    }
   }
 
   componentWillMount() {
@@ -280,9 +313,11 @@ export class ChatScreen extends Component {
     let choiceText = 'Your message...';
 
     if (selectedChoiceIndex !== null) {
-      choiceText = choices.find(
-        ({ index }) => index === selectedChoiceIndex,
-      ).text;
+      const choice = choices.find(({ index }) => index === selectedChoiceIndex);
+
+      if (choice) {
+        choiceText = choice.text;
+      }
     }
 
     return (
