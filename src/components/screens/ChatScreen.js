@@ -283,6 +283,16 @@ export class ChatScreen extends Component {
 
   componentWillMount() {
     this.updateNavigationTitle(this.props);
+
+    const {
+      messageAppearScale,
+      messageReadStateColour,
+      messageReadStateScale,
+    } = this.state;
+
+    messageAppearScale.setValue(1);
+    messageReadStateColour.setValue(1);
+    messageReadStateScale.setValue(1);
   }
 
   componentDidMount() {
