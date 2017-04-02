@@ -80,7 +80,7 @@ export class ChatScreen extends Component {
 
   renderText({ sender, text }, index) {
     const {
-      conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
+      conversation: { lastReadIndex, lastReceivedIndex },
     } = this.props;
     const {
       messageAppearScale,
@@ -108,10 +108,10 @@ export class ChatScreen extends Component {
 
     if (sender === 'player') {
       style.transform = [{ scale: messageReadStateScale }];
-      style.borderColor = 'rgba(170, 170, 170, 1)';
+      style.borderColor = 'rgba(115, 115, 115, 1)';
       style.backgroundColor = 'rgba(255, 255, 255, 1)';
 
-      textStyle.color = 'rgba(170, 170, 170, 1)';
+      textStyle.color = 'rgba(115, 115, 115, 1)';
 
       if (index <= lastReadIndex) {
         style.borderColor = '#006680';
@@ -142,17 +142,6 @@ export class ChatScreen extends Component {
         textStyle.color = messageReadStateColour.interpolate({
           inputRange: [0, 1],
           outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
-          extrapolate: 'clamp',
-        });
-      } else if (index <= lastSentIndex) {
-        style.borderColor = messageReadStateColour.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
-          extrapolate: 'clamp',
-        });
-        textStyle.color = messageReadStateColour.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
           extrapolate: 'clamp',
         });
       }
