@@ -186,6 +186,22 @@ export class ChatScreen extends Component {
     );
   }
 
+  renderEmptyChoices(count) {
+    const output = [];
+
+    for (let i = 0; i < count; i++) {
+      output.push(
+        <View key={`empty-${i}`} style={styles.choiceContainer}>
+          <View style={styles.emptyChoice}>
+            <Text>&nbsp;</Text>
+          </View>
+        </View>,
+      );
+    }
+
+    return output;
+  }
+
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
 
@@ -342,6 +358,7 @@ export class ChatScreen extends Component {
         </View>
         <View style={styles.choiceList}>
           {choices.map(choice => this.renderChoice(choice))}
+          {this.renderEmptyChoices(4 - choices.length)}
           <View style={styles.clearButtonContainer}>
             <Button
               title="Clear"
@@ -418,6 +435,9 @@ const styles = StyleSheet.create({
 
     // Android only
     elevation: 1,
+  },
+  emptyChoice: {
+    padding: 10,
   },
   clearButtonContainer: {
     paddingBottom: 10,
