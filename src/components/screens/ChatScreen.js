@@ -12,6 +12,8 @@ import {
 import Emoji from 'react-native-emoji';
 import { connect } from 'react-redux';
 
+import * as colours from '../../constants/colours';
+
 import { EMOJI_RE } from '../../utils/string';
 
 import { getNarrative } from '../../narrative';
@@ -108,49 +110,79 @@ export class ChatScreen extends Component {
 
     if (sender === 'player') {
       style.transform = [{ scale: messageReadStateScale }];
-      style.borderColor = 'rgba(115, 115, 115, 1)';
-      style.backgroundColor = 'rgba(255, 255, 255, 1)';
 
-      textStyle.color = 'rgba(115, 115, 115, 1)';
+      style.borderColor = colours.PLAYER_SENT_MESSAGE_BORDER_COLOUR;
+      style.backgroundColor = colours.PLAYER_SENT_MESSAGE_BACKGROUND_COLOUR;
+
+      textStyle.color = colours.PLAYER_SENT_MESSAGE_TEXT_COLOUR;
 
       if (index <= lastReadIndex) {
-        style.borderColor = '#006680';
-
         if (index > previousLastReadIndex) {
-          style.backgroundColor = messageReadStateColour.interpolate({
+          style.borderColor = messageReadStateColour.interpolate({
             inputRange: [0, 1],
-            outputRange: ['rgba(255, 255, 255, 1)', 'rgba(0, 102, 128, 1)'],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_BORDER_COLOUR,
+              colours.PLAYER_READ_MESSAGE_BORDER_COLOUR,
+            ],
             extrapolate: 'clamp',
           });
+          style.backgroundColor = messageReadStateColour.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_BACKGROUND_COLOUR,
+              colours.PLAYER_READ_MESSAGE_BACKGROUND_COLOUR,
+            ],
+            extrapolate: 'clamp',
+          });
+
           textStyle.color = messageReadStateColour.interpolate({
             inputRange: [0, 1],
-            outputRange: ['rgba(0, 102, 128, 1)', 'rgba(255, 255, 255, 1)'],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_TEXT_COLOUR,
+              colours.PLAYER_READ_MESSAGE_TEXT_COLOUR,
+            ],
             extrapolate: 'clamp',
           });
         } else {
           delete style.transform;
 
-          style.backgroundColor = '#006680';
-          textStyle.color = '#fff';
+          style.borderColor = colours.PLAYER_READ_MESSAGE_BORDER_COLOUR;
+          style.backgroundColor = colours.PLAYER_READ_MESSAGE_BACKGROUND_COLOUR;
+
+          textStyle.color = colours.PLAYER_READ_MESSAGE_TEXT_COLOUR;
         }
       } else if (index <= lastReceivedIndex) {
         style.borderColor = messageReadStateColour.interpolate({
           inputRange: [0, 1],
-          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_BORDER_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_BORDER_COLOUR,
+          ],
           extrapolate: 'clamp',
         });
+        style.backgroundColor = messageReadStateColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_BACKGROUND_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_BACKGROUND_COLOUR,
+          ],
+          extrapolate: 'clamp',
+        });
+
         textStyle.color = messageReadStateColour.interpolate({
           inputRange: [0, 1],
-          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_TEXT_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_TEXT_COLOUR,
+          ],
           extrapolate: 'clamp',
         });
       }
     } else {
-      // TODO: Should this animate all new messages, too?
-      style.borderColor = 'rgba(128, 0, 0, 1)';
-      style.backgroundColor = 'rgba(128, 0, 0, 1)';
+      style.borderColor = colours.NPC_MESSAGE_BORDER_COLOUR;
+      style.backgroundColor = colours.NPC_MESSAGE_BACKGROUND_COLOUR;
 
-      textStyle.color = 'rgba(255, 255, 255, 1)';
+      textStyle.color = colours.NPC_MESSAGE_TEXT_COLOUR;
 
       if (index >= previousMessageCount) {
         style.transform = [{ scale: messageAppearScale }];

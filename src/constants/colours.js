@@ -1,0 +1,15 @@
+export const PLAYER_SENT_MESSAGE_BORDER_COLOUR = 'rgba(115, 115, 115, 1)';
+export const PLAYER_SENT_MESSAGE_BACKGROUND_COLOUR = 'rgba(255, 255, 255, 1)';
+export const PLAYER_SENT_MESSAGE_TEXT_COLOUR = 'rgba(115, 115, 115, 1)';
+
+export const PLAYER_RECEIVED_MESSAGE_BORDER_COLOUR = 'rgba(0, 102, 128, 1)';
+export const PLAYER_RECEIVED_MESSAGE_BACKGROUND_COLOUR = 'rgba(255, 255, 255, 1)';
+export const PLAYER_RECEIVED_MESSAGE_TEXT_COLOUR = 'rgba(0, 102, 128, 1)';
+
+export const PLAYER_READ_MESSAGE_BORDER_COLOUR = 'rgba(0, 102, 128, 1)';
+export const PLAYER_READ_MESSAGE_BACKGROUND_COLOUR = 'rgba(0, 102, 128, 1)';
+export const PLAYER_READ_MESSAGE_TEXT_COLOUR = 'rgba(255, 255, 255, 1)';
+
+export const NPC_MESSAGE_BORDER_COLOUR = 'rgba(128, 0, 0, 1)';
+export const NPC_MESSAGE_BACKGROUND_COLOUR = 'rgba(128, 0, 0, 1)';
+export const NPC_MESSAGE_TEXT_COLOUR = 'rgba(255, 255, 255, 1)';
