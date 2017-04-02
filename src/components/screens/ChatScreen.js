@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgb(255, 255, 255)',
   },
   messageContainer: {
     padding: 5,
@@ -480,8 +480,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(203, 203, 203, 1)',
-    backgroundColor: '#fff',
+    borderColor: 'rgb(203, 203, 203)',
+    backgroundColor: 'rgb(255, 255, 255)',
     flexDirection: 'row',
   },
   input: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   choiceList: {
     padding: 10,
     paddingBottom: 0,
-    backgroundColor: 'rgba(228, 230, 233, 1)',
+    backgroundColor: 'rgb(228, 230, 233)',
   },
   choiceContainer: {
     paddingBottom: 10,
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   choice: {
     borderRadius: 15,
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgb(255, 255, 255)',
 
     // Android only
     elevation: 1,
