@@ -424,6 +424,7 @@ const styles = StyleSheet.create({
   choiceList: {
     padding: 10,
     paddingBottom: 0,
+    backgroundColor: 'rgba(228, 230, 233, 1)',
   },
   choiceContainer: {
     paddingBottom: 10,
