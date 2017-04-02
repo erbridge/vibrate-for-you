@@ -228,7 +228,7 @@ export class Narrative {
 
     if (typeof textOrDuration === 'string') {
       // Make the emoji typing duration consistent.
-      duration = 250 * textOrDuration.replace(EMOJI_RE, '123456').length;
+      duration = 50 * textOrDuration.replace(EMOJI_RE, '123456').length;
     }
 
     console.log(`Typing: ${duration}ms`);

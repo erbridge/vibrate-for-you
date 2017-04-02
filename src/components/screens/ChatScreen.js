@@ -1,3 +1,4 @@
+import sleep from 'mz-modules/sleep';
 import React, { Component, PropTypes } from 'react';
 import {
   Animated,
@@ -6,10 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import Emoji from 'react-native-emoji';
 import { connect } from 'react-redux';
+
+import * as colours from '../../constants/colours';
 
 import { EMOJI_RE } from '../../utils/string';
 
@@ -24,6 +28,8 @@ export class ChatScreen extends Component {
   };
 
   state = {
+    inputBuffer: '',
+    inputBufferIsChanging: false,
     messageAppearScale: new Animated.Value(0),
     messageReadStateColour: new Animated.Value(0),
     messageReadStateScale: new Animated.Value(1),
@@ -39,6 +45,58 @@ export class ChatScreen extends Component {
     this.narrative = getNarrative('test');
   }
 
+  async selectChoice(index, skipAnimation) {
+    const { conversation: { choices } } = this.props;
+    const { inputBufferIsChanging, selectedChoiceIndex } = this.state;
+    let { inputBuffer } = this.state;
+
+    if (inputBufferIsChanging) {
+      // TODO: Should this cancel the existing one?
+      return;
+    }
+
+    let targetText = '';
+
+    if (index !== null && index !== undefined) {
+      const choice = choices.find(({ index: i }) => i === index);
+
+      if (choice) {
+        targetText = choice.text;
+      }
+    } else if (skipAnimation && selectedChoiceIndex !== null) {
+      this.setState({ inputBuffer: targetText, selectedChoiceIndex: null });
+
+      return;
+    }
+
+    if (inputBuffer === targetText) {
+      this.setState({ selectedChoiceIndex: index });
+
+      return;
+    }
+
+    this.setState({ inputBufferIsChanging: true });
+
+    // TODO: Only delete until the buffer matches a common substring.
+    while (inputBuffer.length) {
+      inputBuffer = inputBuffer.slice(0, -1);
+
+      this.setState({ inputBuffer });
+
+      await sleep(10);
+    }
+
+    while (inputBuffer.length < targetText.length) {
+      inputBuffer = targetText.substring(0, inputBuffer.length + 1);
+
+      this.setState({ inputBuffer });
+
+      await sleep(50);
+    }
+
+    this.setState({ inputBufferIsChanging: false, selectedChoiceIndex: index });
+  }
+
   submitChoice() {
     const {
       conversation: { choices },
@@ -51,11 +109,17 @@ export class ChatScreen extends Component {
       return;
     }
 
-    const text = choices.find(({ index: i }) => i === selectedChoiceIndex).text;
+    const choice = choices.find(({ index: i }) => i === selectedChoiceIndex);
+
+    if (!choice) {
+      return;
+    }
+
+    const text = choice.text;
 
     this.narrative.chooseChoice(selectedChoiceIndex, index);
 
-    this.setState({ selectedChoiceIndex: null });
+    this.selectChoice(null, true);
   }
 
   updateNavigationTitle(props) {
@@ -73,7 +137,7 @@ export class ChatScreen extends Component {
 
   renderText({ sender, text }, index) {
     const {
-      conversation: { lastReadIndex, lastReceivedIndex, lastSentIndex },
+      conversation: { lastReadIndex, lastReceivedIndex },
     } = this.props;
     const {
       messageAppearScale,
@@ -101,60 +165,79 @@ export class ChatScreen extends Component {
 
     if (sender === 'player') {
       style.transform = [{ scale: messageReadStateScale }];
-      style.borderColor = 'rgba(170, 170, 170, 1)';
-      style.backgroundColor = 'rgba(255, 255, 255, 1)';
 
-      textStyle.color = 'rgba(170, 170, 170, 1)';
+      style.borderColor = colours.PLAYER_SENT_MESSAGE_BORDER_COLOUR;
+      style.backgroundColor = colours.PLAYER_SENT_MESSAGE_BACKGROUND_COLOUR;
+
+      textStyle.color = colours.PLAYER_SENT_MESSAGE_TEXT_COLOUR;
 
       if (index <= lastReadIndex) {
-        style.borderColor = '#006680';
-
         if (index > previousLastReadIndex) {
-          style.backgroundColor = messageReadStateColour.interpolate({
+          style.borderColor = messageReadStateColour.interpolate({
             inputRange: [0, 1],
-            outputRange: ['rgba(255, 255, 255, 1)', 'rgba(0, 102, 128, 1)'],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_BORDER_COLOUR,
+              colours.PLAYER_READ_MESSAGE_BORDER_COLOUR,
+            ],
             extrapolate: 'clamp',
           });
+          style.backgroundColor = messageReadStateColour.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_BACKGROUND_COLOUR,
+              colours.PLAYER_READ_MESSAGE_BACKGROUND_COLOUR,
+            ],
+            extrapolate: 'clamp',
+          });
+
           textStyle.color = messageReadStateColour.interpolate({
             inputRange: [0, 1],
-            outputRange: ['rgba(0, 102, 128, 1)', 'rgba(255, 255, 255, 1)'],
+            outputRange: [
+              colours.PLAYER_RECEIVED_MESSAGE_TEXT_COLOUR,
+              colours.PLAYER_READ_MESSAGE_TEXT_COLOUR,
+            ],
             extrapolate: 'clamp',
           });
         } else {
           delete style.transform;
 
-          style.backgroundColor = '#006680';
-          textStyle.color = '#fff';
+          style.borderColor = colours.PLAYER_READ_MESSAGE_BORDER_COLOUR;
+          style.backgroundColor = colours.PLAYER_READ_MESSAGE_BACKGROUND_COLOUR;
+
+          textStyle.color = colours.PLAYER_READ_MESSAGE_TEXT_COLOUR;
         }
       } else if (index <= lastReceivedIndex) {
         style.borderColor = messageReadStateColour.interpolate({
           inputRange: [0, 1],
-          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_BORDER_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_BORDER_COLOUR,
+          ],
           extrapolate: 'clamp',
         });
+        style.backgroundColor = messageReadStateColour.interpolate({
+          inputRange: [0, 1],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_BACKGROUND_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_BACKGROUND_COLOUR,
+          ],
+          extrapolate: 'clamp',
+        });
+
         textStyle.color = messageReadStateColour.interpolate({
           inputRange: [0, 1],
-          outputRange: ['rgba(115, 115, 115, 1)', 'rgba(0, 102, 128, 1)'],
-          extrapolate: 'clamp',
-        });
-      } else if (index <= lastSentIndex) {
-        style.borderColor = messageReadStateColour.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
-          extrapolate: 'clamp',
-        });
-        textStyle.color = messageReadStateColour.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['rgba(170, 170, 170, 1)', 'rgba(115, 115, 115, 1)'],
+          outputRange: [
+            colours.PLAYER_SENT_MESSAGE_TEXT_COLOUR,
+            colours.PLAYER_RECEIVED_MESSAGE_TEXT_COLOUR,
+          ],
           extrapolate: 'clamp',
         });
       }
     } else {
-      // TODO: Should this animate all new messages, too?
-      style.borderColor = 'rgba(128, 0, 0, 1)';
-      style.backgroundColor = 'rgba(128, 0, 0, 1)';
+      style.borderColor = colours.NPC_MESSAGE_BORDER_COLOUR;
+      style.backgroundColor = colours.NPC_MESSAGE_BACKGROUND_COLOUR;
 
-      textStyle.color = 'rgba(255, 255, 255, 1)';
+      textStyle.color = colours.NPC_MESSAGE_TEXT_COLOUR;
 
       if (index >= previousMessageCount) {
         style.transform = [{ scale: messageAppearScale }];
@@ -176,6 +259,36 @@ export class ChatScreen extends Component {
     );
   }
 
+  renderChoice({ index, text }) {
+    return (
+      <View key={index} style={styles.choiceContainer}>
+        <TouchableOpacity
+          onPress={() => this.selectChoice(index)}
+          activeOpacity={0.8}
+          style={styles.choice}
+        >
+          <Text>{text}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  renderEmptyChoices(count) {
+    const output = [];
+
+    for (let i = 0; i < count; i++) {
+      output.push(
+        <View key={`empty-${i}`} style={styles.choiceContainer}>
+          <View style={styles.emptyChoice}>
+            <Text>&nbsp;</Text>
+          </View>
+        </View>,
+      );
+    }
+
+    return output;
+  }
+
   componentWillReceiveProps(nextProps) {
     this.updateNavigationTitle(nextProps);
 
@@ -183,15 +296,14 @@ export class ChatScreen extends Component {
       messageAppearScale,
       messageReadStateColour,
       messageReadStateScale,
+      selectedChoiceIndex,
     } = this.state;
 
     if (
       nextProps.conversation.lastReadIndex !==
         this.props.conversation.lastReadIndex ||
       nextProps.conversation.lastReceivedIndex !==
-        this.props.conversation.lastReceivedIndex ||
-      nextProps.conversation.lastSentIndex !==
-        this.props.conversation.lastSentIndex
+        this.props.conversation.lastReceivedIndex
     ) {
       messageReadStateColour.setValue(0);
       messageReadStateScale.setValue(1);
@@ -242,10 +354,47 @@ export class ChatScreen extends Component {
         previousMessageCount: this.props.conversation.messages.length,
       });
     }
+
+    if (selectedChoiceIndex !== null) {
+      const choice = this.props.conversation.choices.find(
+        ({ index }) => index === selectedChoiceIndex,
+      );
+
+      if (choice) {
+        const nextChoice = nextProps.conversation.choices.find(
+          ({ index }) => index === selectedChoiceIndex,
+        );
+
+        if (!nextChoice || choice.text !== nextChoice.text) {
+          const replacementChoice = nextProps.conversation.choices.find(
+            ({ text }) => text === choice.text,
+          );
+
+          if (replacementChoice) {
+            this.setState({ selectedChoiceIndex: replacementChoice.index });
+          } else {
+            // FIXME: It shouldn't be necessary to skip the animation here...
+            this.selectChoice(null, true);
+          }
+        }
+      } else {
+        this.selectChoice(null);
+      }
+    }
   }
 
   componentWillMount() {
     this.updateNavigationTitle(this.props);
+
+    const {
+      messageAppearScale,
+      messageReadStateColour,
+      messageReadStateScale,
+    } = this.state;
+
+    messageAppearScale.setValue(1);
+    messageReadStateColour.setValue(1);
+    messageReadStateScale.setValue(1);
   }
 
   componentDidMount() {
@@ -260,15 +409,7 @@ export class ChatScreen extends Component {
       dispatch,
       navigation: { state: { params: { index: conversationIndex, name } } },
     } = this.props;
-    const { selectedChoiceIndex } = this.state;
-
-    let choiceText = 'Your message...';
-
-    if (selectedChoiceIndex !== null) {
-      choiceText = choices.find(
-        ({ index }) => index === selectedChoiceIndex,
-      ).text;
-    }
+    const { inputBuffer } = this.state;
 
     return (
       <View style={styles.container}>
@@ -280,30 +421,27 @@ export class ChatScreen extends Component {
         <View style={styles.inputContainer}>
           <Text
             style={
-              selectedChoiceIndex === null
-                ? [styles.input, styles.inputPlaceholder]
-                : styles.input
+              inputBuffer
+                ? styles.input
+                : [styles.input, styles.inputPlaceholder]
             }
           >
-            {choiceText}
+            {inputBuffer || 'Your message...'}
           </Text>
           <View style={styles.submitButtonContainer}>
             <Button title="Send" onPress={() => this.submitChoice()} />
           </View>
         </View>
-        <View>
-          {choices.map(({ index, text }) => (
+        <View style={styles.choiceList}>
+          {choices.map(choice => this.renderChoice(choice))}
+          {this.renderEmptyChoices(4 - choices.length)}
+          <View style={styles.clearButtonContainer}>
             <Button
-              key={index}
-              title={text}
-              onPress={() => this.setState({ selectedChoiceIndex: index })}
+              title="Clear"
+              onPress={() => this.selectChoice(null)}
+              color="#c62828"
             />
-          ))}
-          <Button
-            title="Clear"
-            onPress={() => this.setState({ selectedChoiceIndex: null })}
-            color="#c62828"
-          />
+          </View>
         </View>
       </View>
     );
@@ -316,6 +454,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
+    backgroundColor: 'rgb(255, 255, 255)',
   },
   messageContainer: {
     padding: 5,
@@ -327,19 +466,11 @@ const styles = StyleSheet.create({
   message: {
     flex: 5,
     borderWidth: 3,
-    borderStyle: 'solid',
     borderRadius: 15,
     padding: 10,
   },
-  npcMessage: {
-    borderColor: '#800000',
-    backgroundColor: '#800000',
-  },
   messageText: {
     fontSize: 18,
-  },
-  npcMessageText: {
-    color: '#fff',
   },
   typingIndicator: {
     padding: 10,
@@ -347,7 +478,10 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   inputContainer: {
-    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'rgb(203, 203, 203)',
+    backgroundColor: 'rgb(255, 255, 255)',
     flexDirection: 'row',
   },
   input: {
@@ -362,6 +496,28 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  choiceList: {
+    padding: 10,
+    paddingBottom: 0,
+    backgroundColor: 'rgb(228, 230, 233)',
+  },
+  choiceContainer: {
+    paddingBottom: 10,
+  },
+  choice: {
+    borderRadius: 15,
+    padding: 10,
+    backgroundColor: 'rgb(255, 255, 255)',
+
+    // Android only
+    elevation: 1,
+  },
+  emptyChoice: {
+    padding: 10,
+  },
+  clearButtonContainer: {
+    paddingBottom: 10,
   },
 });
 
