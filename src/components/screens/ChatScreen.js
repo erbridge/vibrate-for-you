@@ -351,6 +351,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
+    backgroundColor: '#fff',
   },
   messageContainer: {
     padding: 5,
@@ -362,7 +363,6 @@ const styles = StyleSheet.create({
   message: {
     flex: 5,
     borderWidth: 3,
-    borderStyle: 'solid',
     borderRadius: 15,
     padding: 10,
   },
@@ -375,6 +375,9 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   inputContainer: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(203, 203, 203, 1)',
     backgroundColor: '#fff',
     flexDirection: 'row',
   },
