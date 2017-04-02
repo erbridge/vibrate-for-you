@@ -1,3 +1,4 @@
+import sleep from 'mz-modules/sleep';
 import React, { Component, PropTypes } from 'react';
 import {
   Animated,
@@ -27,6 +28,8 @@ export class ChatScreen extends Component {
   };
 
   state = {
+    inputBuffer: '',
+    inputBufferIsChanging: false,
     messageAppearScale: new Animated.Value(0),
     messageReadStateColour: new Animated.Value(0),
     messageReadStateScale: new Animated.Value(1),
@@ -40,6 +43,58 @@ export class ChatScreen extends Component {
 
     // FIXME: Determine which narrative to use.
     this.narrative = getNarrative('test');
+  }
+
+  async selectChoice(index, skipAnimation) {
+    const { conversation: { choices } } = this.props;
+    const { inputBufferIsChanging, selectedChoiceIndex } = this.state;
+    let { inputBuffer } = this.state;
+
+    if (inputBufferIsChanging) {
+      // TODO: Should this cancel the existing one?
+      return;
+    }
+
+    let targetText = '';
+
+    if (index !== null && index !== undefined) {
+      const choice = choices.find(({ index: i }) => i === index);
+
+      if (choice) {
+        targetText = choice.text;
+      }
+    } else if (skipAnimation && selectedChoiceIndex !== null) {
+      this.setState({ inputBuffer: targetText, selectedChoiceIndex: null });
+
+      return;
+    }
+
+    if (inputBuffer === targetText) {
+      this.setState({ selectedChoiceIndex: index });
+
+      return;
+    }
+
+    this.setState({ inputBufferIsChanging: true });
+
+    // TODO: Only delete until the buffer matches a common substring.
+    while (inputBuffer.length) {
+      inputBuffer = inputBuffer.slice(0, -1);
+
+      this.setState({ inputBuffer });
+
+      await sleep(10);
+    }
+
+    while (inputBuffer.length < targetText.length) {
+      inputBuffer = targetText.substring(0, inputBuffer.length + 1);
+
+      this.setState({ inputBuffer });
+
+      await sleep(50);
+    }
+
+    this.setState({ inputBufferIsChanging: false, selectedChoiceIndex: index });
   }
 
   submitChoice() {
@@ -64,7 +119,7 @@ export class ChatScreen extends Component {
 
     this.narrative.chooseChoice(selectedChoiceIndex, index);
 
-    this.setState({ selectedChoiceIndex: null });
+    this.selectChoice(null, true);
   }
 
   updateNavigationTitle(props) {
@@ -208,7 +263,7 @@ export class ChatScreen extends Component {
     return (
       <View key={index} style={styles.choiceContainer}>
         <TouchableOpacity
-          onPress={() => this.setState({ selectedChoiceIndex: index })}
+          onPress={() => this.selectChoice(index)}
           activeOpacity={0.8}
           style={styles.choice}
         >
@@ -318,11 +373,12 @@ export class ChatScreen extends Component {
           if (replacementChoice) {
             this.setState({ selectedChoiceIndex: replacementChoice.index });
           } else {
-            this.setState({ selectedChoiceIndex: null });
+            // FIXME: It shouldn't be necessary to skip the animation here...
+            this.selectChoice(null, true);
           }
         }
       } else {
-        this.setState({ selectedChoiceIndex: null });
+        this.selectChoice(null);
       }
     }
   }
@@ -353,17 +409,7 @@ export class ChatScreen extends Component {
       dispatch,
       navigation: { state: { params: { index: conversationIndex, name } } },
     } = this.props;
-    const { selectedChoiceIndex } = this.state;
-
-    let choiceText = 'Your message...';
-
-    if (selectedChoiceIndex !== null) {
-      const choice = choices.find(({ index }) => index === selectedChoiceIndex);
-
-      if (choice) {
-        choiceText = choice.text;
-      }
-    }
+    const { inputBuffer } = this.state;
 
     return (
       <View style={styles.container}>
@@ -375,12 +421,12 @@ export class ChatScreen extends Component {
         <View style={styles.inputContainer}>
           <Text
             style={
-              selectedChoiceIndex === null
-                ? [styles.input, styles.inputPlaceholder]
-                : styles.input
+              inputBuffer
+                ? styles.input
+                : [styles.input, styles.inputPlaceholder]
             }
           >
-            {choiceText}
+            {inputBuffer || 'Your message...'}
           </Text>
           <View style={styles.submitButtonContainer}>
             <Button title="Send" onPress={() => this.submitChoice()} />
@@ -392,7 +438,7 @@ export class ChatScreen extends Component {
           <View style={styles.clearButtonContainer}>
             <Button
               title="Clear"
-              onPress={() => this.setState({ selectedChoiceIndex: null })}
+              onPress={() => this.selectChoice(null)}
               color="#c62828"
             />
           </View>
