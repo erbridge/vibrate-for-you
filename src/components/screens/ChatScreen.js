@@ -248,9 +248,7 @@ export class ChatScreen extends Component {
       nextProps.conversation.lastReadIndex !==
         this.props.conversation.lastReadIndex ||
       nextProps.conversation.lastReceivedIndex !==
-        this.props.conversation.lastReceivedIndex ||
-      nextProps.conversation.lastSentIndex !==
-        this.props.conversation.lastSentIndex
+        this.props.conversation.lastReceivedIndex
     ) {
       messageReadStateColour.setValue(0);
       messageReadStateScale.setValue(1);
