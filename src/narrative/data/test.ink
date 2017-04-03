@@ -4,11 +4,14 @@ VAR player_online = 1
 
 -> start
 
+
 == start ==
 
 Welcome...
 
+*   Hello, how are you? -> hello
 *   Hi! -> hello
+*   Hi there -> hello
 *   WAIT(20) -> hello
 
 
@@ -22,8 +25,8 @@ How are you today?
 
 - (opts)
     <-  debug(-> opts)
-    *   Hello back! -> DONE
     *   WAIT(10) Goodbye... -> DONE
+    *   Hello back! -> DONE
     *   WAIT(20) -> there
 
 
