@@ -2763,9 +2763,9 @@ inherits@2, inherits@2.0.3, inherits@~2.0.0, inherits@~2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
 
-inkjs@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/inkjs/-/inkjs-1.5.1.tgz#c5b2e949f2cbf3a7ef53ed93aa64b9f9dc23c842"
+inkjs@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/inkjs/-/inkjs-1.5.2.tgz#366f83f8fa53284177e30d46a1547c353202aae2"
 
 inquirer@^0.12.0:
   version "0.12.0"
