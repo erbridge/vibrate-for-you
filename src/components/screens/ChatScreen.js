@@ -28,8 +28,8 @@ export class ChatScreen extends Component {
   };
 
   state = {
+    choiceAnimationIndex: 0,
     inputBuffer: '',
-    inputBufferIsChanging: false,
     messageAppearScale: new Animated.Value(0),
     messageReadStateColour: new Animated.Value(0),
     messageReadStateScale: new Animated.Value(1),
@@ -47,13 +47,13 @@ export class ChatScreen extends Component {
 
   async selectChoice(index, skipAnimation) {
     const { conversation: { choices } } = this.props;
-    const { inputBufferIsChanging, selectedChoiceIndex } = this.state;
+    const { selectedChoiceIndex } = this.state;
+    let { choiceAnimationIndex } = this.state;
     let { inputBuffer } = this.state;
 
-    if (inputBufferIsChanging) {
-      // TODO: Should this cancel the existing one?
-      return;
-    }
+    choiceAnimationIndex++;
+
+    this.setState({ choiceAnimationIndex });
 
     let targetText = '';
 
@@ -75,15 +75,16 @@ export class ChatScreen extends Component {
       return;
     }
 
-    this.setState({ inputBufferIsChanging: true });
-
-    // TODO: Only delete until the buffer matches a common substring.
-    while (inputBuffer.length) {
+    while (inputBuffer.length && !targetText.startsWith(inputBuffer)) {
       inputBuffer = inputBuffer.slice(0, -1);
 
       this.setState({ inputBuffer });
 
       await sleep(10);
+
+      if (this.state.choiceAnimationIndex !== choiceAnimationIndex) {
+        return;
+      }
     }
 
     while (inputBuffer.length < targetText.length) {
@@ -92,9 +93,13 @@ export class ChatScreen extends Component {
       this.setState({ inputBuffer });
 
       await sleep(50);
+
+      if (this.state.choiceAnimationIndex !== choiceAnimationIndex) {
+        return;
+      }
     }
 
-    this.setState({ inputBufferIsChanging: false, selectedChoiceIndex: index });
+    this.setState({ selectedChoiceIndex: index });
   }
 
   submitChoice() {
