@@ -12,6 +12,7 @@ import {
 
 import * as colours from '../constants/colours';
 
+import collapseButtonIcon from '../assets/keyboard/collapse-button-icon.png';
 import sendButtonIcon from '../assets/keyboard/send-button-icon.png';
 
 export default class Keyboard extends Component {
@@ -187,6 +188,17 @@ export default class Keyboard extends Component {
           onPress={() => this.setState({ collapsed: false })}
         >
           <View style={styles.inputContainer}>
+            {!collapsed &&
+              <View style={styles.collapseButtonContainer}>
+                <TouchableOpacity
+                  onPress={() => this.setState({ collapsed: true })}
+                >
+                  <Image
+                    source={collapseButtonIcon}
+                    style={styles.collapseButton}
+                  />
+                </TouchableOpacity>
+              </View>}
             <Text
               style={
                 inputBuffer
@@ -250,6 +262,17 @@ const styles = StyleSheet.create({
   inputPlaceholder: {
     color: '#aaa',
   },
+  collapseButtonContainer: {
+    padding: 5,
+    paddingLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  collapseButton: {
+    width: 342 / 192 * 24, // The source image is 342 x 192.
+    height: 24,
+    tintColor: colours.COLLAPSE_BUTTON_TINT_COLOUR,
+  },
   sendButtonContainer: {
     padding: 5,
     paddingRight: 10,
@@ -257,8 +280,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sendButton: {
-    width: 24,
-    height: 288 / 250 * 24, // The source image is 250 x 288.
+    width: 250 / 288 * 24, // The source image is 250 x 288.
+    height: 24,
   },
   activeSendButton: {
     tintColor: colours.ACTIVE_SEND_BUTTON_TINT_COLOUR,
