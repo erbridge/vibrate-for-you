@@ -8,6 +8,20 @@ VAR player_online = 1
 == start ==
 
 Welcome...
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
+This is another line.
 
 *   Hello, how are you? -> hello
 *   Hi! -> hello
