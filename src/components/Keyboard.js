@@ -2,6 +2,7 @@ import sleep from 'mz-modules/sleep';
 import React, { Component } from 'react';
 import {
   Button,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,9 +10,14 @@ import {
   View,
 } from 'react-native';
 
+import * as colours from '../constants/colours';
+
+import sendButtonIcon from '../assets/keyboard/send-button-icon.png';
+
 export default class Keyboard extends Component {
   state = {
     choiceAnimationIndex: 0,
+    choiceAnimationInProgress: false,
     collapsed: false,
     inputBuffer: '',
     selectedChoiceIndex: null,
@@ -47,6 +53,8 @@ export default class Keyboard extends Component {
       return;
     }
 
+    this.setState({ choiceAnimationInProgress: true });
+
     while (inputBuffer.length && !targetText.startsWith(inputBuffer)) {
       inputBuffer = inputBuffer.slice(0, -1);
 
@@ -71,7 +79,10 @@ export default class Keyboard extends Component {
       }
     }
 
-    this.setState({ selectedChoiceIndex: index });
+    this.setState({
+      choiceAnimationInProgress: false,
+      selectedChoiceIndex: index,
+    });
   }
 
   submitChoice() {
@@ -166,7 +177,9 @@ export default class Keyboard extends Component {
 
   render() {
     const { choices } = this.props;
-    const { collapsed, inputBuffer } = this.state;
+    const { choiceAnimationInProgress, collapsed, inputBuffer } = this.state;
+
+    const canSend = inputBuffer && !choiceAnimationInProgress;
 
     return (
       <View>
@@ -183,8 +196,21 @@ export default class Keyboard extends Component {
             >
               {inputBuffer || 'Your message...'}
             </Text>
-            <View style={styles.submitButtonContainer}>
-              <Button title="Send" onPress={() => this.submitChoice()} />
+            <View style={styles.sendButtonContainer}>
+              <TouchableOpacity
+                onPress={() => this.submitChoice()}
+                disabled={!canSend}
+              >
+                <Image
+                  source={sendButtonIcon}
+                  style={[
+                    styles.sendButton,
+                    canSend
+                      ? styles.activeSendButton
+                      : styles.inactiveSendButton,
+                  ]}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -224,10 +250,21 @@ const styles = StyleSheet.create({
   inputPlaceholder: {
     color: '#aaa',
   },
-  submitButtonContainer: {
+  sendButtonContainer: {
     padding: 5,
+    paddingRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sendButton: {
+    width: 24,
+    height: 288 / 250 * 24, // The source image is 250 x 288.
+  },
+  activeSendButton: {
+    tintColor: colours.ACTIVE_SEND_BUTTON_TINT_COLOUR,
+  },
+  inactiveSendButton: {
+    tintColor: colours.INACTIVE_SEND_BUTTON_TINT_COLOUR,
   },
   collapsedChoiceList: {
     height: 0,
