@@ -18,3 +18,5 @@ export const ACTIVE_SEND_BUTTON_TINT_COLOUR = 'rgb(0, 102, 128)';
 export const INACTIVE_SEND_BUTTON_TINT_COLOUR = 'rgb(115, 115, 115)';
 
 export const COLLAPSE_BUTTON_TINT_COLOUR = 'rgb(115, 115, 115)';
+
+export const JUMP_BUTTON_TINT_COLOUR = 'rgb(115, 115, 115)';

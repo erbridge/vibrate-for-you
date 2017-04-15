@@ -4,9 +4,11 @@ import {
   Animated,
   Button,
   Easing,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import Emoji from 'react-native-emoji';
@@ -15,6 +17,10 @@ import * as colours from '../constants/colours';
 
 import { EMOJI_RE } from '../utils/string';
 
+import jumpButtonIcon from '../assets/message-list/jump-button-icon.png';
+
+const SCROLL_THRESHOLD = 20;
+
 export default class MessageList extends Component {
   state = {
     messageAppearScale: new Animated.Value(0),
@@ -22,6 +28,7 @@ export default class MessageList extends Component {
     messageReadStateScale: new Animated.Value(1),
     previousLastReadIndex: -1,
     previousMessageCount: 0,
+    scrolledToEnd: true,
   };
 
   renderText({ sender, text }, index) {
@@ -216,13 +223,40 @@ export default class MessageList extends Component {
 
   render() {
     const { messages, name, typingState } = this.props;
+    const { scrolledToEnd } = this.state;
+
+    let messageList;
 
     return (
-      <ScrollView style={styles.container}>
-        {messages.map((message, i) => this.renderText(message, i))}
-        {typingState === 'active' &&
-          <Text style={styles.typingIndicator}>{name} is typing...</Text>}
-      </ScrollView>
+      <View style={styles.container}>
+        <ScrollView
+          ref={node => {
+            messageList = node;
+          }}
+          onContentSizeChange={() =>
+            scrolledToEnd && messageList.scrollToEnd({ animated: true })}
+          onScroll={(
+            { nativeEvent: { contentOffset, contentSize, layoutMeasurement } },
+          ) =>
+            this.setState({
+              scrolledToEnd: layoutMeasurement.height +
+                contentOffset.y +
+                SCROLL_THRESHOLD >=
+                contentSize.height,
+            })}
+        >
+          {messages.map((message, i) => this.renderText(message, i))}
+          {typingState === 'active' &&
+            <Text style={styles.typingIndicator}>{name} is typing...</Text>}
+        </ScrollView>
+        {!scrolledToEnd &&
+          <TouchableOpacity
+            onPress={() => messageList.scrollToEnd({ animated: true })}
+            style={styles.jumpButtonContainer}
+          >
+            <Image source={jumpButtonIcon} style={styles.jumpButton} />
+          </TouchableOpacity>}
+      </View>
     );
   }
 }
@@ -252,5 +286,18 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  jumpButtonContainer: {
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  jumpButton: {
+    width: 342 / 192 * 14, // The source image is 342 x 192.
+    height: 14,
+    tintColor: colours.JUMP_BUTTON_TINT_COLOUR,
   },
 });
