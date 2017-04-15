@@ -74,6 +74,7 @@ export class ChatScreen extends Component {
           choices={choices}
           submitChoice={selectedIndex =>
             this.narrative.chooseChoice(selectedIndex, conversationIndex)}
+          collapsed
         />
       </View>
     );

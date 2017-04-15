@@ -1,10 +1,18 @@
 import sleep from 'mz-modules/sleep';
 import React, { Component } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 
 export default class Keyboard extends Component {
   state = {
     choiceAnimationIndex: 0,
+    collapsed: false,
     inputBuffer: '',
     selectedChoiceIndex: null,
   };
@@ -146,29 +154,45 @@ export default class Keyboard extends Component {
         this.selectChoice(null);
       }
     }
+
+    if (nextProps.collapsed !== this.props.collapsed) {
+      this.setState({ collapsed: nextProps.collapsed });
+    }
+  }
+
+  componentWillMount() {
+    this.setState({ collapsed: this.props.collapsed });
   }
 
   render() {
     const { choices } = this.props;
-    const { inputBuffer } = this.state;
+    const { collapsed, inputBuffer } = this.state;
 
     return (
       <View>
-        <View style={styles.inputContainer}>
-          <Text
-            style={
-              inputBuffer
-                ? styles.input
-                : [styles.input, styles.inputPlaceholder]
-            }
-          >
-            {inputBuffer || 'Your message...'}
-          </Text>
-          <View style={styles.submitButtonContainer}>
-            <Button title="Send" onPress={() => this.submitChoice()} />
+        <TouchableWithoutFeedback
+          onPress={() => this.setState({ collapsed: false })}
+        >
+          <View style={styles.inputContainer}>
+            <Text
+              style={
+                inputBuffer
+                  ? styles.input
+                  : [styles.input, styles.inputPlaceholder]
+              }
+            >
+              {inputBuffer || 'Your message...'}
+            </Text>
+            <View style={styles.submitButtonContainer}>
+              <Button title="Send" onPress={() => this.submitChoice()} />
+            </View>
           </View>
-        </View>
-        <View style={styles.choiceList}>
+        </TouchableWithoutFeedback>
+        <View
+          style={
+            collapsed ? styles.collapsedChoiceList : styles.expandedChoiceList
+          }
+        >
           {choices.map(choice => this.renderChoice(choice))}
           {this.renderEmptyChoices(4 - choices.length)}
           <View style={styles.clearButtonContainer}>
@@ -205,7 +229,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  choiceList: {
+  collapsedChoiceList: {
+    height: 0,
+  },
+  expandedChoiceList: {
     padding: 10,
     paddingBottom: 0,
     backgroundColor: 'rgb(228, 230, 233)',
