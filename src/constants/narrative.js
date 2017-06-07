@@ -1,0 +1,1 @@
+export const TYPING_CHARACTER_DELAY = 20;

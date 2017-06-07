@@ -1,6 +1,8 @@
 import { Story } from 'inkjs';
 import sleep from 'mz-modules/sleep';
 
+import { TYPING_CHARACTER_DELAY } from '../constants/narrative';
+
 import { EMOJI_RE } from '../utils/string';
 
 import {
@@ -229,7 +231,8 @@ export class Narrative {
 
     if (typeof textOrDuration === 'string') {
       // Make the emoji typing duration consistent.
-      duration = 50 * textOrDuration.replace(EMOJI_RE, '123456').length;
+      duration = TYPING_CHARACTER_DELAY *
+        textOrDuration.replace(EMOJI_RE, '123456').length;
     }
 
     console.log(`Typing: ${duration}ms`);
