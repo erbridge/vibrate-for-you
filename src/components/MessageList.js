@@ -251,6 +251,17 @@ export default class MessageList extends Component {
                 contentSize.height,
             })}
         >
+          {name &&
+            <View style={styles.systemMessageContainer}>
+              <View style={styles.systemMessageSpacer} />
+              <View>
+                <Text style={styles.systemMessageText}>
+                  You've matched with {name}.
+                  Start chatting!
+                </Text>
+              </View>
+              <View style={styles.systemMessageSpacer} />
+            </View>}
           {messages.map((message, i) => this.renderText(message, i))}
           {typingState === 'active' &&
             <Text style={styles.typingIndicator}>{name} is typing...</Text>}
@@ -271,6 +282,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'rgb(255, 255, 255)',
+  },
+  systemMessageContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    backgroundColor: colours.SYSTEM_MESSAGE_BACKGROUND_COLOUR,
+  },
+  systemMessageSpacer: {
+    flex: 1,
+  },
+  systemMessageText: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    color: colours.SYSTEM_MESSAGE_TEXT_COLOUR,
   },
   messageContainer: {
     padding: 5,

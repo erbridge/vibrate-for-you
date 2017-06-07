@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import * as colours from '../constants/colours';
+import { TYPING_CHARACTER_DELAY } from '../constants/narrative';
 
 import collapseButtonIcon from '../assets/keyboard/collapse-button-icon.png';
 import sendButtonIcon from '../assets/keyboard/send-button-icon.png';
@@ -73,7 +74,7 @@ export default class Keyboard extends Component {
 
       this.setState({ inputBuffer });
 
-      await sleep(50);
+      await sleep(TYPING_CHARACTER_DELAY);
 
       if (this.state.choiceAnimationIndex !== choiceAnimationIndex) {
         return;
