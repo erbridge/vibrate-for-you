@@ -20,6 +20,7 @@ import chatSelectors from '../store/selectors/chat';
 const WAIT_CHOICE_RE = /^WAIT\((\d+)\)\s*(.*)/;
 
 const STORIES = {
+  '1': require('./data/1.ink.json'),
   test: require('./data/test.ink.json'),
 };
 

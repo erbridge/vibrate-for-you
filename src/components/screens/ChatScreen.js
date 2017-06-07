@@ -19,7 +19,7 @@ export class ChatScreen extends Component {
     super(...args);
 
     // FIXME: Determine which narrative to use.
-    this.narrative = getNarrative('test');
+    this.narrative = getNarrative('1');
   }
 
   updateNavigationTitle(props) {
