@@ -43,15 +43,21 @@ export default class MessageList extends Component {
 
     text = text.trim();
 
-    let emoji;
+    let emoji = EMOJI_RE.exec(text);
     let outputText = [];
     let lastIndex = 0;
 
-    while ((emoji = EMOJI_RE.exec(text)) !== null) {
+    while (emoji !== null) {
       outputText.push(text.substring(lastIndex, emoji.index));
       outputText.push(<Emoji key={emoji.index} name={emoji[1]} />);
 
       lastIndex = emoji.index + emoji[0].length;
+
+      emoji = EMOJI_RE.exec(text);
+    }
+
+    if (outputText.length) {
+      outputText.push(text.substring(lastIndex));
     }
 
     const style = {};
