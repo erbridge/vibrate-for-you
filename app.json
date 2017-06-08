@@ -1,5 +1,7 @@
 {
   "expo": {
+    "name": "vibrate for you",
+    "icon": "./src/assets/icon.png",
     "sdkVersion": "15.0.0",
     "android": {
       "package": "com.teamsext.vibrateforyou"
