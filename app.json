@@ -3,6 +3,9 @@
     "name": "vibrate for you",
     "icon": "./src/assets/icon.png",
     "sdkVersion": "15.0.0",
+    "ios": {
+      "bundleIdentifier": "com.teamsext.vibrateforyou"
+    },
     "android": {
       "package": "com.teamsext.vibrateforyou"
     }
