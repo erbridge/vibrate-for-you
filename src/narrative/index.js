@@ -80,7 +80,7 @@ export class Narrative {
 
   async _processStory(conversationIndex, skipDelay) {
     if (!skipDelay) {
-      await sleep(1000);
+      await sleep(500);
     }
 
     this.isProcessing = true;
@@ -114,11 +114,11 @@ export class Narrative {
 
             text = newText;
           }
-        } else {
+        } else if (!text.startsWith('NULL')) {
           await this._showTyping(text, conversationIndex);
         }
 
-        if (text) {
+        if (text && !text.startsWith('NULL')) {
           this.store.dispatch(
             sendMessage({ index: conversationIndex, sender, text }),
           );
@@ -126,6 +126,9 @@ export class Narrative {
           if (this.nextMessageWasChoice) {
             await this._markAllMessagesAsSent(conversationIndex);
             await this._markAllMessagesAsReceived(conversationIndex);
+
+            // TODO: Delay reading if the player takes a long time (because
+            //       they're not in the chat any more).
             await this._markAllMessagesAsRead(conversationIndex);
           } else {
             await this._markAllMessagesAsRead(conversationIndex, 0);
@@ -233,6 +236,10 @@ export class Narrative {
       // Make the emoji typing duration consistent.
       duration = TYPING_CHARACTER_DELAY *
         textOrDuration.replace(EMOJI_RE, '123456').length;
+    }
+
+    if (!duration) {
+      return;
     }
 
     console.log(`Typing: ${duration}ms`);
