@@ -16,21 +16,7 @@ VAR thankyou = "thank you"
 == youve_matched ==
 
 + hey -> startconvo
-+ WAIT(10) -> startconvodelay
-
-
-== startconvo ==
-
-{ hesitate <= 0:
-    ~ guilty = ""
-}
-
-{ hesitate > 0: phew, i was worried i'd lost you. how are you? | hey, how are you? }
-
-+ { hesitate > 0 } haha, a little eager, aren't you? -> hesitate_response_1
-+ hey! yeah, i'm good, how are you? -> enthusiastic_response_1
-+ ugh, i'm up super late working on this project. you? -> hesitate_response_1
-+ pretty exhausted, if i'm honest. -> turndown_response_1
++ WAIT(20) -> startconvodelay
 
 
 == startconvodelay ==
@@ -47,9 +33,32 @@ hey
 + hey -> startconvo
 
 
+== startconvo ==
+
+{ hesitate > 0:
+    NULL{ wait(5) }{ typing(3) }{ wait(2) }
+
+    phew, i was worried i'd lost you. how are you?
+}
+
+{ hesitate <= 0:
+    NULL{ wait(2) }
+
+    hey, how are you?
+}
+
++ { hesitate > 0 } haha, a little eager, aren't you? -> hesitate_response_1
++ hey! yeah, i'm good, how are you? -> enthusiastic_response_1
++ ugh, i'm up super late working on this project. you? -> hesitate_response_1
++ pretty exhausted, if i'm honest. -> turndown_response_1
+
+
 == enthusiastic_response_1 ==
 
-i'm pretty tired, if i'm honest.
+NULL{ wait(2) }{ typing(4) }{ wait(4) }
+
+i'm pretty tired, if i'm honest.{ wait(3) }
+
 you're up late!
 
 ~ enthusiasm += 1
@@ -58,6 +67,8 @@ you're up late!
 
 
 == hesitate_response_1 ==
+
+NULL{ wait(2) }
 
 { guilty } i guess we're both up kind of late, aren't we?
 
@@ -69,7 +80,8 @@ you're up late!
 
 == turndown_response_1 ==
 
-oh geez, yeah, me too
+oh geez, yeah, me too{ wait(4) }{ typing(2) }{ wait(7) }{ typing(3) }{ wait(1) }
+
 but it's better to get whatever you're working on done, right?
 
 ~ turndown += 1
@@ -78,6 +90,8 @@ but it's better to get whatever you're working on done, right?
 
 
 == anchor_1
+
+NULL{ wait(1) }{ typing(2) }{ wait(4) }
 
 i'm just lookin out for you, i guess
 
@@ -89,8 +103,18 @@ i'm just lookin out for you, i guess
 == anchor_2 ==
 
 { enthusiasm > 0: i mean, not that you need it }
-{ enthusiasm <= 0 and hesitate > 0: well, if you'll let me }
-{ enthusiasm <= 0 and hesitate <= 0 and turndown > 0: haha sorry, i don't mean to say that you need looking after }
+
+{ enthusiasm <= 0 and hesitate > 0:
+    NULL{ wait(3) }
+
+    well, if you'll let me
+}
+
+{ enthusiasm <= 0 and hesitate <= 0 and turndown > 0:
+    NULL{ wait(1) }{ typing(1) }{ wait(2) }{ typing(0.5) }{ wait(1) }{ typing(3) }{ wait(2) }
+
+    haha sorry, i don't mean to say that you need looking after
+}
 
 + { enthusiasm > 0 } what else are you looking out for? -> enthusiastic_forward
 + { enthusiasm > 0 } why's that? -> hesitate_forward
@@ -105,6 +129,8 @@ i'm just lookin out for you, i guess
 
 == enthusiastic_forward ==
 
+NULL{ wait(1) }
+
 a little bit of fun
 
 ~ enthusiasm += 1
@@ -114,6 +140,8 @@ a little bit of fun
 
 
 == enthusiastic_forward_1 ==
+
+NULL{ wait(2) }
 
 i was just thinking about your pictures. you've got a nice smile.
 
@@ -159,6 +187,8 @@ it is, it is
 
 == enthusiastic_check_in_2 ==
 
+NULL{ wait(2) }{ typing(1) }{ wait(1) }
+
 i wish you were here right now
 
 + hands at your hips, pulling at your jeans? -> yes_god
@@ -167,7 +197,8 @@ i wish you were here right now
 
 == yes_god ==
 
-yes
+yes{ wait(1) }
+
 god
 
 + you're really hot, you know that? -> turned_on_1
@@ -177,6 +208,8 @@ god
 
 == turned_on_1 ==
 
+NULL{ wait(3) }
+
 i can stand to hear it again
 
 + do you want me to keep talking to you like this -> turned_on_2
@@ -184,12 +217,16 @@ i can stand to hear it again
 
 == turned_on_2 ==
 
+NULL{ wait(1) }
+
 i want a lot of things from you
 
 + tell me -> turned_on_3
 
 
 == turned_on_3 ==
+
+NULL{ typing(2) }{ wait(4) }{ typing(1) }{ wait(1) }
 
 i want you, i want to hear you come, i want to feel you around me and inside me
 
@@ -199,12 +236,16 @@ i want you, i want to hear you come, i want to feel you around me and inside me
 
 == turned_on_4 ==
 
+NULL{ wait(6) }
+
 i'm so close
 
 + yeah? -> turned_on_5
 
 
 == turned_on_5 ==
+
+NULL{ wait(10) }
 
 can i come
 
@@ -213,7 +254,10 @@ can i come
 
 == bdsm_1 ==
 
-maybe a little
+NULL{ wait(12) }{ typing(2) }{ wait(4) }
+
+maybe a little{ wait(5) }
+
 yes, a lot actually
 
 + just pin your hands above your head, would you like that? -> bdsm_2
@@ -221,17 +265,16 @@ yes, a lot actually
 
 == bdsm_2 ==
 
+NULL{ wait(2) }{ typing(1) }{ wait(1) }
+
 would you pull my hair
 
-+ i'd grab fist fulls of it to keep you still -> bdsm_3
-
-
-== bdsm_3 ==
-
-+ WAIT(10) -> bdsm_4
++ i'd grab fist fulls of it to keep you still -> bdsm_4
 
 
 == bdsm_4 ==
+
+NULL{ wait(10) }{ typing(2) }{ wait(3) }
 
 tell me i'm good
 
@@ -240,12 +283,16 @@ tell me i'm good
 
 == enthusiastic_response_2 ==
 
+NULL{ wait(4) }
+
 and your mouth?
 
 -> enthusiastic_forward_4
 
 
 == enthusiastic_delay ==
+
+NULL{ typing(3) }{ wait(1) }{ typing(2) }{ wait(3) }
 
 i guess i was just hoping we could have some fun
 
@@ -261,6 +308,8 @@ i guess i was just hoping we could have some fun
 
 == hesitate_forward_2 ==
 
+NULL{ wait(15) }
+
 it's raining outside.
 
 + oh, it's raining here, too -> raining
@@ -268,6 +317,8 @@ it's raining outside.
 
 
 == raining ==
+
+NULL{ wait(3) }
 
 we are, according to finder, like a mile apart
 
@@ -283,12 +334,16 @@ you mean hear
 
 == thunder_2 ==
 
+NULL{ wait(1) }
+
 from the humidity, i'd guess
 
 + it was so hot today. i made iced tea -> weather
 
 
 == uh ==
+
+NULL{ wait(5) }{ typing(1) }{ wait(1) }
 
 just an observation
 
@@ -297,6 +352,8 @@ just an observation
 
 == i_see ==
 
+NULL{ wait(7) }
+
 anyway
 
 + right. -> end_3
@@ -304,12 +361,16 @@ anyway
 
 == turndown_forward ==
 
+NULL{ wait(2) }
+
 what are you working on?
 
 + just this project i said i'd get done by a crazy deadline -> turndown_forward_1
 
 
 == turndown_forward_1 ==
+
+NULL{ wait(2) }{ typing(2) }{ wait(1) }
 
 are you getting distracted, working so late?
 
@@ -319,12 +380,16 @@ are you getting distracted, working so late?
 
 == turndown_end ==
 
+NULL{ wait(6) }
+
 oh
 
 + yeah. anyway. -> end
 
 
 == forward ==
+
+NULL{ typing(1) }{ wait(1) }
 
 { mouth } what else can your mouth do?
 
@@ -336,6 +401,8 @@ oh
 
 == dotdotdot ==
 
+NULL{ wait(6) }
+
 would you pin me down
 
 + knees either side of you -> enthusiastic_response_2
@@ -344,12 +411,16 @@ would you pin me down
 
 == take_the_lead_1 ==
 
+NULL{ wait(4) }{ typing(2) }{ wait(1) }
+
 i'd be gentle with you
 
 + yeah? -> take_the_lead_2
 
 
 == take_the_lead_2 ==
+
+NULL{ wait(2) }
 
 kiss you at the hollow beneath your ear,
 
@@ -358,13 +429,18 @@ kiss you at the hollow beneath your ear,
 
 == go_on ==
 
-down your neck to your collarbone, the hollow of your throat
+NULL{ wait(5) }
+
+down your neck to your collarbone, the hollow of your throat{ wait(3) }
+
 i'd leave a trail with my tongue
 
 + yeah -> yeah
 
 
 == yeah ==
+
+NULL{ wait(4) }
 
 i'd want to hear you moan, to make you come in my hands, against me, shuddering
 
@@ -374,12 +450,16 @@ i'd want to hear you moan, to make you come in my hands, against me, shuddering
 
 == yeah_2 ==
 
+NULL{ wait(5) }{ typing(2) }{ wait(2) }
+
 do you want that? do you want to come with me
 
 + please -> please
 
 
 == please ==
+
+NULL{ wait(10) }
 
 thank you
 
@@ -408,6 +488,8 @@ thank you
 
 == im_here ==
 
+NULL{ wait(1) }
+
 { enthusiasm > 1: just wanted to make sure }
 { enthusiasm <= 1 and hesitate > 2: just wanted to make sure. we can stop if you want? }
 { enthusiasm <= 1 and hesitate <= 2: are you sure? }
@@ -429,7 +511,10 @@ thank you
 
 == hold_on ==
 
-i don't mean to be forward
+NULL{ wait(2) }{ typing(1) }{ wait(3) }{ typing(2) }{ wait(1) }
+
+i don't mean to be forward{ wait(4) }{ typing(1) }{ wait(3) }
+
 you're right, it's a bit much
 
 ~ enthusiasm -= 1
@@ -441,6 +526,8 @@ you're right, it's a bit much
 
 == hold_on_2 ==
 
+NULL{ wait(2) }
+
 whatever you need
 
 + you -> hold_on_2a
@@ -449,6 +536,8 @@ whatever you need
 
 == hold_on_2a ==
 
+NULL{ wait(5) }
+
 do you want me
 
 + i want you to come for me -> turned_on_3
@@ -456,7 +545,10 @@ do you want me
 
 == learn ==
 
-it's raining outside. i like it when it rains.
+NULL{ wait(10) }{ typing(2) }{ wait(4) }
+
+it's raining outside. i like it when it rains.{ wait(1) }
+
 the sound makes the whole house feel smaller.
 
 + i meant something about you -> learn_2
@@ -464,6 +556,8 @@ the sound makes the whole house feel smaller.
 
 
 == learn_2 ==
+
+NULL{ wait(4) }{ typing(3) }{ wait(1) }
 
 i'm five foot nine. i've got a cat. his name is thomas.
 
@@ -480,6 +574,8 @@ well it's a cat's name when he has it.
 
 == learn_4 ==
 
+NULL{ wait(10) }
+
 i'd send you a picture, but i don't know where he's gone
 
 + a different kind of pussy pic -> pussy_pic
@@ -487,7 +583,8 @@ i'd send you a picture, but i don't know where he's gone
 
 == pussy_pic ==
 
-haha
+haha{ wait(3) }
+
 crass
 
 + i mean, we're chatting on finder -> learn_6
@@ -497,6 +594,8 @@ crass
 
 == learn_6 ==
 
+NULL{ wait(3) }
+
 i don't know what i was expecting
 
 + me neither -> me_neither
@@ -505,7 +604,10 @@ i don't know what i was expecting
 
 == me_neither ==
 
-well
+NULL{ wait(6) }
+
+well{ wait(5) }
+
 anyway
 
 + yeah -> end_3
@@ -513,6 +615,8 @@ anyway
 
 
 == meet_up ==
+
+NULL{ wait(6) }
 
 oh
 
@@ -522,8 +626,12 @@ oh
 
 == might_be_nice ==
 
-yeah
+NULL{ wait(2) }
+
+yeah{ wait(4) }
+
 no
+
 i think it would be nice, too
 
 + what are you doing tomorrow? we could grab a coffee in city centre -> coffee
@@ -531,7 +639,8 @@ i think it would be nice, too
 
 == coffee ==
 
-i'd really like that
+i'd really like that{ wait(3) }
+
 we could meet at the corner of regent and royal
 
 + if you don't look like an axe murderer, i'll be there at 3 -> learn_7
@@ -546,12 +655,16 @@ it's a date.
 
 == expecting_something ==
 
+NULL{ wait(1) }
+
 sorry to disappoint
 
 -> end_3
 
 
 == weather ==
+
+NULL{ wait(2) }
 
 what kind of tea?
 
@@ -560,13 +673,16 @@ what kind of tea?
 
 == weather_2 ==
 
-that sounds nice.
+that sounds nice.{ wait(5) }{ typing(1) }{ wait(2) }
+
 do you have any more now?
 
 + on my bedside table. -> bedside_table
 
 
 == bedside_table ==
+
+NULL{ wait(2) }
 
 is that within reach?
 
@@ -597,12 +713,16 @@ and you?
 
 == warm_hot ==
 
+NULL{ wait(4) }
+
 are you in bed?
 
 + yes -> yes
 
 
 == yes ==
+
+NULL{ wait(5) }{ typing(1) }{ wait(1) }{ typing(2) }{ wait(2) }
 
 have you thought about touching yourself
 
@@ -612,7 +732,10 @@ have you thought about touching yourself
 
 == touching_self ==
 
-are you still warm and hot
+NULL{ wait(1) }
+
+are you still warm and hot{ wait(3) }
+
 can you imagine my mouth on yours
 
 + can you imagine my hands on you -> yes_weather_2
@@ -623,8 +746,12 @@ can you imagine my mouth on yours
 
 == touching_self_reject ==
 
-it's okay - i get it
+NULL{ wait(2) }
+
+it's okay - i get it{ wait(3) }{ typing(1) }{ wait(1) }
+
 sorry for pushing
+
 we don't have to talk anymore
 
 + yeah, maybe it's best if we don't -> end_2
@@ -643,6 +770,8 @@ can you imagine my mouth on you
 
 == yes_weather_2 ==
 
+NULL{ wait(4) }
+
 can you imagine my mouth on you
 
 + i want that -> i_want_that
@@ -650,12 +779,16 @@ can you imagine my mouth on you
 
 == i_want_that ==
 
+NULL{ wait(2) }
+
 i know
 
 + i want this -> turned_on_2
 
 
 == end ==
+
+NULL{ wait(6) }
 
 okay, well, maybe we could talk some other time
 
@@ -670,6 +803,8 @@ okay, well, maybe we could talk some other time
 
 == end_2 ==
 
+NULL{ wait(3) }{ typing(1) }{ wait(1) }
+
 oh! okay. sorry if i made you feel uncomfortable. we don't have to keep talking
 
 + yeah, i'm just not really into it -> DONE
@@ -677,7 +812,10 @@ oh! okay. sorry if i made you feel uncomfortable. we don't have to keep talking
 
 == end_3 ==
 
+NULL{ wait(4) }
+
 thanks for the chat
+
 xx
 
 -> DONE
@@ -685,12 +823,16 @@ xx
 
 == end_4 ==
 
+NULL{ wait(5) }{ typing(3) }{ wait(1) }
+
 yeah, i don't know, i was kind of looking for a casual thing
 
 + oh, that's fine -> end_6
 
 
 == end_6 ==
+
+NULL{ wait(1) }
 
 but thank you for talking with me
 
@@ -723,6 +865,7 @@ thank you
 == end_8 ==
 
 { thankyou }
+
 let's chat again soon
 
 -> DONE

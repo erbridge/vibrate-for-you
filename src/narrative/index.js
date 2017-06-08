@@ -80,7 +80,7 @@ export class Narrative {
 
   async _processStory(conversationIndex, skipDelay) {
     if (!skipDelay) {
-      await sleep(1000);
+      await sleep(500);
     }
 
     this.isProcessing = true;
@@ -114,11 +114,11 @@ export class Narrative {
 
             text = newText;
           }
-        } else {
+        } else if (!text.startsWith('NULL')) {
           await this._showTyping(text, conversationIndex);
         }
 
-        if (text) {
+        if (text && !text.startsWith('NULL')) {
           this.store.dispatch(
             sendMessage({ index: conversationIndex, sender, text }),
           );
