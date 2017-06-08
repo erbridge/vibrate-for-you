@@ -1,5 +1,8 @@
 import { createAction } from 'redux-actions';
 
+export const START_CONVERSATION = '@@vfy/START_CONVERSATION';
+export const CLEAR_ALL_CONVERSATIONS = '@@vfy/CLEAR_ALL_CONVERSATIONS';
+
 export const SEND_MESSAGE = '@@vfy/SEND_MESSAGE';
 
 export const SET_CHOICES = '@@vfy/SET_CHOICES';
@@ -12,6 +15,9 @@ export const SET_READ = '@@vfy/SET_READ';
 export const SET_TYPING = '@@vfy/SET_TYPING';
 
 export const UPDATE_STORY_STATE = '@@vfy/UPDATE_STORY_STATE';
+
+export const startConversation = createAction(START_CONVERSATION);
+export const clearAllConversations = createAction(CLEAR_ALL_CONVERSATIONS);
 
 export const sendMessage = createAction(SEND_MESSAGE);
 

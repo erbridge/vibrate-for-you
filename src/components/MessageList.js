@@ -256,8 +256,7 @@ export default class MessageList extends Component {
               <View style={styles.systemMessageSpacer} />
               <View>
                 <Text style={styles.systemMessageText}>
-                  You've matched with {name}.
-                  Start chatting!
+                  You've matched with {name}. Start chatting!
                 </Text>
               </View>
               <View style={styles.systemMessageSpacer} />

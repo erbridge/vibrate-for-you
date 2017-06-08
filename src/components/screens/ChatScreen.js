@@ -46,7 +46,9 @@ export class ChatScreen extends Component {
   componentDidMount() {
     const { navigation: { state: { params: { index } } } } = this.props;
 
-    this.narrative.start(index);
+    if (index !== undefined && index !== null) {
+      this.narrative.start(index);
+    }
   }
 
   render() {

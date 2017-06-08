@@ -18,7 +18,7 @@ initNarratives(store);
 
 const defaultProps = {
   conversation: { name: 'test', messages: [], choices: [] },
-  navigation: { setParams: jest.fn(), state: { params: { index: 0 } } },
+  navigation: { setParams: jest.fn(), state: { params: { index: null } } },
 };
 
 it('renders without crashing', () => {

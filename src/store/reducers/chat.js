@@ -2,6 +2,7 @@ import { handleActions } from 'redux-actions';
 
 import {
   ADD_CHOICE,
+  CLEAR_ALL_CONVERSATIONS,
   CLEAR_CHOICES,
   SEND_MESSAGE,
   SET_CHOICES,
@@ -9,11 +10,47 @@ import {
   SET_RECEIVED,
   SET_SENT,
   SET_TYPING,
+  START_CONVERSATION,
   UPDATE_STORY_STATE,
 } from '../actions/chat';
 
 export default handleActions(
   {
+    [START_CONVERSATION]: {
+      next(state, { payload: { name } }) {
+        const conversations = JSON.parse(JSON.stringify(state.conversations));
+
+        conversations.push({
+          name,
+          messages: [],
+          choices: [],
+          lastSentIndex: -1,
+          lastReceivedIndex: -1,
+          lastReadIndex: -1,
+          typingState: 'inactive',
+          storyState: '',
+        });
+
+        return { ...state, conversations };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
+    [CLEAR_ALL_CONVERSATIONS]: {
+      next(state) {
+        return { ...state, conversations: [] };
+      },
+      throw(state, { payload }) {
+        console.error(payload);
+
+        // FIXME: Do something more with the error.
+        return state;
+      },
+    },
     [SEND_MESSAGE]: {
       next(state, { payload: { index, sender, text } }) {
         const conversations = JSON.parse(JSON.stringify(state.conversations));
@@ -161,17 +198,6 @@ export default handleActions(
     },
   },
   {
-    conversations: [
-      {
-        name: 'Jaimie',
-        messages: [],
-        choices: [],
-        lastSentIndex: -1,
-        lastReceivedIndex: -1,
-        lastReadIndex: -1,
-        typingState: 'inactive',
-        storyState: '',
-      },
-    ],
+    conversations: [],
   },
 );
