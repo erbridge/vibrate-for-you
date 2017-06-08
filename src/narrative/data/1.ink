@@ -302,8 +302,8 @@ i guess i was just hoping we could have some fun
 
 == hesitate_forward ==
 
-+ WAIT(7) are you there? -> hesitate_forward_2
-+ WAIT(17) -> end_1
++ WAIT(15) are you there? -> hesitate_forward_2
++ WAIT(30) -> end_1
 
 
 == hesitate_forward_2 ==

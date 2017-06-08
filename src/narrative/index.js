@@ -80,7 +80,7 @@ export class Narrative {
 
   async _processStory(conversationIndex, skipDelay) {
     if (!skipDelay) {
-      await sleep(500);
+      await sleep(1000);
     }
 
     this.isProcessing = true;
